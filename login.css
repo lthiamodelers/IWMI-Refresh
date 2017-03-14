@@ -1,0 +1,12 @@
+#inputEmail {
+  margin-bottom: 25px;
+}
+
+#inputPassword {
+  margin-bottom: 25px;
+}
+
+#signIn {
+  width: 25%;
+  align-items: flex-end;
+}
