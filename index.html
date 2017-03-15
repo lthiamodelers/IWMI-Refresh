@@ -24,70 +24,103 @@
         </div>
       </div>
     </nav>
-    <div id="map"></div>
+    <div id="parent">
+      <div id="map"></div>
+      <div id="searchTools" class="container">
+        <h2 style="margin:5px auto;width:50%;">Search Tools</h2>
+        <div class="form-group">
+          <label for="city">City</label>
+          <input type="text" class="form-control" id="city">
+          <button type="submit" id="searchCity" class="btn btn-lg btn-primary btn-block">Search</button>
+        </div>
+        <hr/> </div>
+    </div>
   </div>
   <script src="lib/papaparse.js"></script>
   <script src="lib/markerclusterer.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script>
-    var infowindow
+    var infowindow;
+    var map;
 
     function myMap(text) {
+      //Google search "Indianapolis, IN lat long". Will be used as the center point.
       var center = {
         lat: 39.7684
         , lng: -86.1581
       };
       var data = Papa.parse(text);
-      //
-      console.log(data);
-      console.log(data.data.length);
-      //
+      //Create the map with refrence to the #map element.
       var mapCanvas = document.getElementById("map");
       var mapOptions = {
         center: center
-        , zoom: 7
+        , zoom: 8
       };
+      //Base URL for the circle icon used as a marker.
       var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
-      var map = new google.maps.Map(mapCanvas, mapOptions);
-      //
-      var markers = []
-        //
+      map = new google.maps.Map(mapCanvas, mapOptions);
+      //Empty array to put the markers in as they are created. This will be used to make a markerClusterer
+      var markers = [];
+      //Loop through each array in data.data, skipping the first, which is a header row.
       for (var i = 1; i < data.data.length; i++) {
+        //Create a point representing the lat and lng of each data value.
         var point = {
           lat: parseFloat(data.data[i][20])
           , lng: parseFloat(data.data[i][21])
         };
+        //Create a marker. A scale value of 3 seems to work well.
         var marker = new google.maps.Marker({
           position: point
           , icon: {
             path: google.maps.SymbolPath.CIRCLE
-            , scale: 2
+            , scale: 3
           }
           , title: data.data[i][4]
         });
+        //Add the marker to the markers array.
         markers[i - 1] = marker;
+        //A closure to make sure that infoWindows are created for their own markers.
         (function (_marker) {
+          //An attempt to close the previously opened window.
           if (infowindow) infowindow.close();
-          //
+          //Create the content of the infoWindow using HTML styling.
           var content = '<h5><a href="' + data.data[i][13] + '">' + data.data[i][4] + '</a></h5><p><b>Agency:</b> ' + data.data[i][3] + '<br><b>Location:</b> ' + data.data[i][6] + '<br><b>Site Number:</b> ' + data.data[i][5] + '<br><b>Parameter(s) sampled:</b> ' + data.data[i][8] + '<br><b>Parameter Type:</b> ' + data.data[i][7] + '<br><b>Monitoring Frequency:</b> ' + data.data[i][9] + '<br><b>Publicly Availible?:</b> ' + data.data[i][10] + '<br><b>Data Quality Information:</b> ' + data.data[i][15] + '<br><b>Date of record:</b> ' + data.data[i][11] + ' to ' + data.data[i][12] + '<br><b>HUC12:</b> ' + data.data[i][19] + '</p>';
-          //
+          //Create the info window based on the content variable ^^
           var infowindow = new google.maps.InfoWindow({
-            content: content
-            , maxWidth: 400
-          })
+              content: content
+              , maxWidth: 400
+            })
+            //Add the on click listener to the marker.
           _marker.addListener('click', function () {
             infowindow.open(map, _marker);
           });
         }(marker));
-      }
-      console.log(markers);
+      } // END FOR LOOP
       // Add a marker clusterer to manage the markers.
       var markerCluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
-        , maxZoom: 15
+        , maxZoom: 15 //An arbitrary value that seems to work well.
       });
-      console.log("Max zoom: " + markerCluster.getMaxZoom());
     }
+    //click function for search
+    function searchCity() {
+      var geocoder = new google.maps.Geocoder();
+      var input = document.getElementById("city");
+      var cityAndState = input.value + ", IN";
+      console.log(cityAndState);
+      geocoder.geocode({
+        'address': cityAndState
+      }, function (results, status) {
+        console.log("Got here!!");
+        if (status == google.maps.GeocoderStatus.OK) {
+          console.log("location: " + results[0].geometry.location.lat() + " " + results[0].geometry.location.lng());
+          map.setCenter(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+          map.setZoom(13);
+        }
+      });
+    };
+    document.getElementById("searchCity").addEventListener("click", searchCity);
+    //Load in the csv, and call myMap with it.
     $(document).ready(function () {
       $.ajax({
         type: "GET"
