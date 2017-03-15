@@ -29,6 +29,8 @@
   <script src="lib/papaparse.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
   <script>
+    var infowindow
+
     function myMap(text) {
       var center = {
         lat: 39.7684
@@ -44,30 +46,31 @@
       };
       var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
       var map = new google.maps.Map(mapCanvas, mapOptions);
-      for (var i = 1; i < 100 /*data.data.length*/ ; i++) {
+      for (var i = 1; i < data.data.length; i++) {
         var point = {
           lat: parseFloat(data.data[i][20])
           , lng: parseFloat(data.data[i][21])
         };
-        var content = '<h5>' + data.data[i][4] + '</h5>';
-        var infoWindow = new google.maps.InfoWindow({
-          content: content
-          , maxWidth: 400
-        })
         var marker = new google.maps.Marker({
           position: point
           , map: map
           , icon: {
             path: google.maps.SymbolPath.CIRCLE
-            , scale: 1
+            , scale: 2
           }
           , title: data.data[i][4]
         });
-        (function (_marker, _info) {
+        (function (_marker) {
+          if (infowindow) infowindow.close();
+          var content = '<h5><a href="' + data.data[i][14] + '">' + data.data[i][4] + '</a></h5><p><b>Agency:</b> ' + data.data[i][3] + '<br><b>Location:</b> ' + data.data[i][6] + '<br><b>Site Number:</b> ' + data.data[i][5] + '<br><b>Parameter(s) sampled:</b> ' + data.data[i][8] + '<br><b>Parameter Type:</b> ' + data.data[i][7] + '<br><b>Monitoring Frequency:</b> ' + data.data[i][9] + '<br><b>Publicly Availible?:</b> ' + data.data[i][10] + '<br><b>Data Quality Information:</b> ' + data.data[i][15] + '<br><b>Date of record:</b> ' + data.data[i][11] + ' to ' + data.data[i][12] + '<br><b>HUC12:</b> ' + data.data[i][19] + '</p>';
+          var infowindow = new google.maps.InfoWindow({
+            content: content
+            , maxWidth: 400
+          })
           _marker.addListener('click', function () {
-            _info.open(map, _marker);
+            infowindow.open(map, _marker);
           });
-        }(marker, infoWindow));
+        }(marker));
       }
     }
     $(document).ready(function () {
