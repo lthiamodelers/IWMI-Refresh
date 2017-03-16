@@ -10,8 +10,9 @@
 </head>
 
 <body>
+	<a href="https://github.com/lthiamodelers/IWMI-Refresh"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
 	<div class="container" style="height:100%;width:100%;">
-		<nav class="navbar navbar-default">
+		<nav class="navbar navbar-default" style="width: calc(100% - 50px);">
 			<div class="container-fluid" style="height:100%;width:100%;">
 				<div class="navbar-header"> <a class="navbar-brand" href="#">IWMI</a> </div>
 				<div id="navbar" class="navbar-collapse collapse">
@@ -50,8 +51,36 @@
 		var map;
 		var agencyNames = [];
 		var agencyTypes = [];
+		var locations = [];
 
-		function Location(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, public, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
+		function Location(oldLocation, point, marker) {
+			this.FID = oldLocation.FID;
+			this.GID = oldLocation.GID;
+			this.type = oldLocation.type;
+			this.organization = oldLocation.organization;
+			this.name = oldLocation.name;
+			this.siteNo = oldLocation.siteNo;
+			this.description = oldLocation.description;
+			this.parameterType = oldLocation.parameterType;
+			this.parameter = oldLocation.parameter;
+			this.frequency = oldLocation.frequency;
+			this.public = oldLocation.public;
+			this.startDate = oldLocation.startDate;
+			this.endDate = oldLocation.endDate;
+			this.contactURL = oldLocation.contactURL;
+			this.id = oldLocation.id;
+			this.quality = oldLocation.quality;
+			this.email = oldLocation.email;
+			this.huc8 = oldLocation.huc8;
+			this.huc10 = oldLocation.huc10;
+			this.huc12 = oldLocation.huc12;
+			this.lat = oldLocation.lat;
+			this.lng = oldLocation.lng;
+			this.point = point;
+			this.marker = marker;
+		}
+
+		function OldLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, public, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
 			this.FID = FID;
 			this.GID = GID;
 			this.type = type;
@@ -89,22 +118,18 @@
 		}
 
 
-		function addAgencyType(data) {
-			//The agency type
-			var type = data[2];
-			//The agency name
-			var name = data[3];
+		function addAgencyType(loc) {
 			//Could we find the agency type in the array?
 			var found = false;
 
 			//Loop through each agency type in the agencyNames array.
 			for (var i = 0; i < agencyNames.length; i++) {
 				//Check if agencyNames has type in it.
-				if (agencyNames[i][0] === type) {
+				if (agencyNames[i][0] === loc.type) {
 					//Is the name of the agency already in the array?
-					if (agencyNames[i].indexOf(name) == -1) {
+					if (agencyNames[i].indexOf(loc.organization) == -1) {
 						//Append the name of the agency to the array, if it isn't in there already.
-						agencyNames[i].push(name);
+						agencyNames[i].push(loc.organization);
 					}
 
 					//We found the agency type!
@@ -119,21 +144,53 @@
 				//Make a new array
 				var arr = [];
 				//Put the type, and then the name of the agency into the array
-				arr.push(type);
-				arr.push(name);
+				arr.push(loc.type);
+				arr.push(loc.organization);
 				//Push the array, and the type to agencyNames, and agencyTypes, respectively
 				agencyNames.push(arr);
-				agencyTypes.push(type);
+				agencyTypes.push(loc.type);
 			}
 		}
 
-		function myMap(text) {
+		function parse(text) {
+			console.log("Length of saved data: " + JSON.parse(localStorage.getItem("locations")).length);
+			locations = JSON.parse(localStorage.getItem("locations"));
+			if (locations === null || locations.length < 100) {
+
+				var data = Papa.parse(text);
+				for (var i = 1; i < data.data.length; i++) {
+					var a = data.data[i];
+
+					var loc = new OldLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
+
+					var point = {
+						lat: parseFloat(loc.lat),
+						lng: parseFloat(loc.lng)
+					}
+
+					var marker = new google.maps.Marker({
+						position: loc.point,
+						icon: {
+							path: google.maps.SymbolPath.CIRCLE,
+							scale: 5
+						},
+						title: loc.name
+					});
+
+					var newLoc = new Location(loc, point, marker);
+
+					locations.push(newLoc);
+				}
+			}
+			myMap();
+		}
+
+		function myMap() {
 			//Google search "Indianapolis, IN lat long". Will be used as the center point.
 			var center = {
 				lat: 39.7684,
 				lng: -86.1581
 			};
-			var data = Papa.parse(text);
 
 			//Create the map with refrence to the #map element.
 			var mapCanvas = document.getElementById("map");
@@ -149,30 +206,23 @@
 			//Empty array to put the markers in as they are created. This will be used to make a markerClusterer
 			var markers = [];
 
-			//Loop through each array in data.data, skipping the first, which is a header row.
-			for (var i = 1; i < data.data.length; i++) {
+			var totalTime = 0;
 
-				//Add to agency type
-				addAgencyType(data.data[i]);
+			for (var i = 0; i < locations.length; i++) {
+				var loc = locations[i];
+				addAgencyType(loc);
 
-				//Create a point representing the lat and lng of each data value.
-				var point = {
-					lat: parseFloat(data.data[i][20]),
-					lng: parseFloat(data.data[i][21])
-				};
+				var start = new Date().getTime();
 
-				//Create a marker. A scale value of 3 seems to work well.
-				var marker = new google.maps.Marker({
-					position: point,
-					icon: {
-						path: google.maps.SymbolPath.CIRCLE,
-						scale: 5
-					},
-					title: data.data[i][4]
-				});
 
-				//Add the marker to the markers array.
-				markers[i - 1] = marker;
+				var end = new Date().getTime();
+				totalTime = totalTime + (end - start);
+
+				markers.push(loc.marker);
+				if (i == 0) {
+					console.log(loc.marker);
+					console.log()
+				}
 
 				//A closure to make sure that infoWindows are created for their own markers.
 				(function(_marker) {
@@ -180,8 +230,8 @@
 					//An attempt to close the previously opened window.
 					if (infowindow) infowindow.close();
 
-					//Create the content of the infoWindow using HTML styling.
-					var content = '<h5><a href="' + data.data[i][13] + '">' + data.data[i][4] + '</a></h5><p><b>Agency:</b> ' + data.data[i][3] + '<br><b>Location:</b> ' + data.data[i][6] + '<br><b>Site Number:</b> ' + data.data[i][5] + '<br><b>Parameter(s) sampled:</b> ' + data.data[i][8] + '<br><b>Parameter Type:</b> ' + data.data[i][7] + '<br><b>Monitoring Frequency:</b> ' + data.data[i][9] + '<br><b>Publicly Availible?:</b> ' + data.data[i][10] + '<br><b>Data Quality Information:</b> ' + data.data[i][15] + '<br><b>Date of record:</b> ' + data.data[i][11] + ' to ' + data.data[i][12] + '<br><b>HUC12:</b> ' + data.data[i][19] + '</p>';
+
+					var content = '<h5><a href="' + loc.contactURL + '">' + loc.name + '</a></h5><p><b>Agency:</b> ' + loc.organization + '<br><b>Location:</b> ' + loc.description + '<br><b>Site Number:</b> ' + loc.siteNo + '<br><b>Parameter(s) sampled:</b> ' + loc.parameter + '<br><b>Parameter Type:</b> ' + loc.parameterType + '<br><b>Monitoring Frequency:</b> ' + loc.frequency + '<br><b>Publicly Availible?:</b> ' + loc.public + '<br><b>Data Quality Information:</b> ' + loc.quality + '<br><b>Date of record:</b> ' + loc.startDate + ' to ' + loc.endDate + '<br><b>HUC12:</b> ' + loc.huc12 + '</p>';
 
 					//Create the info window based on the content variable ^^
 					var infowindow = new google.maps.InfoWindow({
@@ -194,9 +244,10 @@
 						infowindow.open(map, _marker);
 					});
 
-				}(marker));
+				}(loc.marker));
+			}
 
-			} // END FOR LOOP
+			console.log("Time: " + totalTime);
 
 			agencyTypes.sort();
 
@@ -210,9 +261,18 @@
 
 			populateAgencyType();
 
-			google.maps.event.trigger(map, "resize");
+			console.log(locations);
+
+			var items = JSON.parse(localStorage.getItem("locations"));
+			if (items === null || items.length < 100) {
+				console.log("Saving!!");
+				localStorage.setItem("locations", JSON.stringify(locations));
+			}
 
 		}
+
+
+
 		//click function for search
 		function searchCity() {
 
@@ -238,7 +298,6 @@
 			for (var i = 0; i < agencyTypes.length; i++) {
 				var type = agencyTypes[i];
 				var el = document.createElement("option");
-				console.log("Type: " + type);
 				el.textContent = type;
 				el.value = type;
 				agencyTypeSelect.appendChild(el);
@@ -255,7 +314,7 @@
 				url: "res/inwater.csv",
 				dataType: "text",
 				success: function(data) {
-					myMap(data);
+					parse(data);
 				}
 			})
 
