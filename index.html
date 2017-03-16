@@ -51,9 +51,34 @@
 		var agencyNames = [];
 		var agencyTypes = [];
 
+		function Location(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, public, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
+			this.FID = FID;
+			this.GID = GID;
+			this.type = type;
+			this.organization = organization;
+			this.name = name;
+			this.siteNo = siteNo;
+			this.description = description;
+			this.parameterType = parameterType;
+			this.parameter = parameter;
+			this.frequency = frequency;
+			this.public = public;
+			this.startDate = startDate;
+			this.endDate = endDate;
+			this.contactURL = contactURL;
+			this.id = id;
+			this.quality = quality;
+			this.email = email;
+			this.huc8 = huc8;
+			this.huc10 = huc10;
+			this.huc12 = huc12;
+			this.lat = lat;
+			this.lng = lng;
+		}
+
 		function populateAgencyType() {
 			var agencyTypeSelect = document.getElementById("agencyTypeSelect");
-			for (var i = 0; i < agencyTypes.length; i++) {
+			for (var i = 0; i < agencyTypes.length - 1; i++) {
 				var type = agencyTypes[i];
 				var el = document.createElement("option");
 				console.log("Type: " + type);
@@ -185,6 +210,8 @@
 
 			populateAgencyType();
 
+			google.maps.event.trigger(map, "resize");
+
 		}
 		//click function for search
 		function searchCity() {
@@ -206,7 +233,20 @@
 			});
 		};
 
+		function populateAgencyType() {
+			var agencyTypeSelect = document.getElementById("agencyTypeSelect");
+			for (var i = 0; i < agencyTypes.length; i++) {
+				var type = agencyTypes[i];
+				var el = document.createElement("option");
+				console.log("Type: " + type);
+				el.textContent = type;
+				el.value = type;
+				agencyTypeSelect.appendChild(el);
+			}
+		}
+
 		document.getElementById("searchCity").addEventListener("click", searchCity);
+		document.getElementById("agencyTypeSelect").addEventListener("click", populateAgencyType);
 
 		//Load in the csv, and call myMap with it.
 		$(document).ready(function() {
