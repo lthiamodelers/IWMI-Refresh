@@ -18,6 +18,10 @@
 	margin-bottom: 10px;
 }
 
+#agencyTypeSelect {
+	margin-bottom: 10px;
+}
+
 .select button {
 	width: 100%;
 	text-align: left;

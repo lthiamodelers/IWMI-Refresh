@@ -38,6 +38,11 @@
 				<div class="form-group">
 					<select id="agencyTypeSelect" class="form-control">
 						<option>Select Agency Type</option>
+						<option>Show all</option>
+					</select>
+					<select id="agencySelect" class="form-control" disabled>
+						<option>Select Agency</option>
+						<option>Show all</option>
 					</select>
 				</div>
 			</div>
@@ -52,8 +57,12 @@
 		var agencyNames = [];
 		var agencyTypes = [];
 		var locations = [];
+		var start;
+		var cluster;
+		var oldType = "Select Agency Type";
 
-		function Location(oldLocation, point, infoWindow) {
+		function Location(oldLocation, marker) {
+			this.oldLocation = oldLocation;
 			this.FID = oldLocation.FID;
 			this.GID = oldLocation.GID;
 			this.type = oldLocation.type;
@@ -76,8 +85,7 @@
 			this.huc12 = oldLocation.huc12;
 			this.lat = oldLocation.lat;
 			this.lng = oldLocation.lng;
-			this.point = point;
-			this.infoWindow = infoWindow;
+			this.marker = marker;
 		}
 
 		function OldLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, public, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
@@ -153,9 +161,11 @@
 		}
 
 		function parse(text) {
+			start = new Date().getTime();
+
 			console.log("Length of saved data: " + JSON.parse(localStorage.getItem("locations")).length);
-			locations = JSON.parse(localStorage.getItem("locations"));
-			if (locations === null || locations.length < 100) {
+			oldLocations = JSON.parse(localStorage.getItem("locations"));
+			if (oldLocations === null || oldLocations.length < 100) {
 				console.log("We're doing it the old-fashioned way.");
 
 				var data = Papa.parse(text);
@@ -168,12 +178,30 @@
 					var lng = parseFloat(loc.lng);
 					var name = loc.name;
 
+					var marker = new google.maps.Marker({
+						position: {
+							lat: parseFloat(loc.lat),
+							lng: parseFloat(loc.lng)
+						},
+						title: loc.name
+					});
 
-
-					var newLoc = new Location(loc, null, null);
+					var newLoc = new Location(loc, marker);
 
 					locations.push(newLoc);
 				}
+			} else {
+				oldLocations.forEach(function(loc) {
+					var marker = new google.maps.Marker({
+						position: {
+							lat: parseFloat(loc.lat),
+							lng: parseFloat(loc.lng)
+						},
+						title: loc.name
+					});
+					var newLoc = new Location(loc, marker);
+					locations.push(newLoc);
+				});
 			}
 			myMap();
 		}
@@ -189,7 +217,7 @@
 			var mapCanvas = document.getElementById("map");
 			var mapOptions = {
 				center: center,
-				zoom: 8
+				zoom: 7
 			};
 
 			//Base URL for the circle icon used as a marker.
@@ -201,27 +229,18 @@
 
 			var totalTime = 0;
 
-
-
 			for (var i = 0; i < locations.length; i++) {
 				var loc = locations[i];
 				addAgencyType(loc);
 
-				var marker = new google.maps.Marker({
-					position: {
-						lat: parseFloat(loc.lat),
-						lng: parseFloat(loc.lng)
-					},
-					map: map,
-					title: loc.name
-				});
+				loc.marker.setMap(map);
 
-				markers.push(marker);
+				markers.push(loc.marker);
 
 				//A closure to make sure that infoWindows are created for their own markers.
 				(function(_marker) {
 
-					var start = new Date().getTime();
+
 					//Create the info window based on the content variable ^^
 
 					var content = '<h5><a href="' + loc.contactURL + '">' + loc.name + '</a></h5><p><b>Agency:</b> ' + loc.organization + '<br><b>Location:</b> ' + loc.description + '<br><b>Site Number:</b> ' + loc.siteNo + '<br><b>Parameter(s) sampled:</b> ' + loc.parameter + '<br><b>Parameter Type:</b> ' + loc.parameterType + '<br><b>Monitoring Frequency:</b> ' + loc.frequency + '<br><b>Publicly Availible?:</b> ' + loc.public + '<br><b>Data Quality Information:</b> ' + loc.quality + '<br><b>Date of record:</b> ' + loc.startDate + ' to ' + loc.endDate + '<br><b>HUC12:</b> ' + loc.huc12 + '</p>';
@@ -231,11 +250,6 @@
 						maxWidth: 400
 					});
 
-
-
-					var end = new Date().getTime();
-					totalTime = totalTime + (end - start);
-
 					//Add the on click listener to the marker.
 					_marker.addListener('click', function() {
 						//An attempt to close the previously opened window.
@@ -243,33 +257,36 @@
 						infowindow.open(map, _marker);
 					});
 
-				}(marker));
-
+				}(loc.marker));
 
 			}
-
-
-			console.log("Time: " + totalTime);
 
 			agencyTypes.sort();
 
 			// Add a marker clusterer to manage the markers.
-			var markerCluster = new MarkerClusterer(map, markers, {
+			cluster = new MarkerClusterer(map, markers, {
 				imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
 				maxZoom: 15 //An arbitrary value that seems to work well.
 			});
+
+			var end = new Date().getTime();
+			totalTime = totalTime + (end - start);
+
+			console.log("Time: " + totalTime);
 
 			populateAgencyType();
 
 			var items = JSON.parse(localStorage.getItem("locations"));
 			if (items === null || items.length < 100) {
+				var oldLocations = [];
+				locations.forEach(function(loc) {
+					oldLocations.push(loc.oldLocation);
+				})
 				console.log("Saving!!");
-				localStorage.setItem("locations", JSON.stringify(locations));
+				localStorage.setItem("locations", JSON.stringify(oldLocations));
 			}
 
 		}
-
-
 
 		//click function for search
 		function searchCity() {
@@ -293,7 +310,7 @@
 
 		function populateAgencyType() {
 			var agencyTypeSelect = document.getElementById("agencyTypeSelect");
-			for (var i = 0; i < agencyTypes.length; i++) {
+			for (var i = 0; i < agencyTypes.length - 1; i++) {
 				var type = agencyTypes[i];
 				var el = document.createElement("option");
 				el.textContent = type;
@@ -302,8 +319,143 @@
 			}
 		}
 
+		function filterAgencyTypes() {
+			var select = document.getElementById("agencyTypeSelect");
+			var agencySelect = document.getElementById("agencySelect");
+			var val = select.value;
+
+			if (val !== "Select Agency Type") {
+
+				for (var i = 2; i < agencySelect.options.length; i++) {
+
+					console.log("Deleting '" + agencySelect.options[i].value + "'.")
+
+					agencySelect.options[i] = null;
+				}
+
+				console.log("Old Type: " + oldType);
+				if (val !== oldType) {
+
+					var bounds = new google.maps.LatLngBounds();
+
+					cluster.clearMarkers();
+					cluster = null;
+					markers = [];
+
+					locations.forEach(function(loc) {
+
+						if (val === "Show all") {
+
+							loc.marker.setVisible(true);
+							markers.push(loc.marker);
+						} else if (loc.type === val) {
+
+							loc.marker.setVisible(true);
+							markers.push(loc.marker);
+							bounds.extend(loc.marker.position);
+						}
+					});
+
+					cluster = new MarkerClusterer(map, markers, {
+						imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+						maxZoom: 15 //An arbitrary value that seems to work well.
+					});
+
+					if (val !== "Show all") {
+						map.fitBounds(bounds);
+						if (map.getZoom() > 13) {
+							map.setZoom(13);
+						}
+					}
+
+
+
+				}
+				populateAgencies(val);
+			} else {
+				var agencySelect = document.getElementById("agencySelect");
+				agencySelect.disabled = true;
+			}
+
+			oldType = val;
+		}
+
+		function filterAgencies() {
+
+			var typeSelect = document.getElementById("agencyTypeSelect");
+			var select = document.getElementById("agencySelect");
+			var val = select.value;
+			var bounds = new google.maps.LatLngBounds();
+
+			if (val !== "Select Agency") {
+
+				cluster.clearMarkers();
+				cluster = null;
+				markers = [];
+
+				locations.forEach(function(loc) {
+
+					if (loc.type === typeSelect.value && loc.organization === val) {
+
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+					} else if (val === "Show all") {
+						if (loc.type === typeSelect.value) {
+							loc.marker.setVisible(true);
+							markers.push(loc.marker);
+						}
+					}
+				});
+
+				markers.forEach(function(mark) {
+					bounds.extend(mark.position);
+				});
+
+				cluster = new MarkerClusterer(map, markers, {
+					imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+					maxZoom: 15 //An arbitrary value that seems to work well.
+				});
+
+				map.fitBounds(bounds);
+				if (map.getZoom() > 13) {
+					map.setZoom(13);
+				}
+			}
+		}
+
+		function populateAgencies(type) {
+			var agencySelect = document.getElementById("agencySelect");
+
+			for (var i = 2; i < agencySelect.options.length; i++) {
+
+				console.log("Deleting '" + agencySelect.options[i].value + "'.")
+
+				agencySelect.options[i] = null;
+			}
+
+			agencyNames.forEach(function(name) {
+				if (type === "Show all") {
+					for (var i = 1; i < name.length; i++) {
+						var el = document.createElement("option");
+						el.textContent = name[i];
+						el.value = name[i];
+						agencySelect.appendChild(el);
+					}
+				} else if (name[0] === type) {
+					for (var i = 1; i < name.length; i++) {
+						var el = document.createElement("option");
+						el.textContent = name[i];
+						el.value = name[i];
+						agencySelect.appendChild(el);
+					}
+				}
+			});
+			agencySelect.disabled = false;
+		}
+
 		document.getElementById("searchCity").addEventListener("click", searchCity);
-		document.getElementById("agencyTypeSelect").addEventListener("click", populateAgencyType);
+		document.getElementById("agencyTypeSelect").addEventListener("click", filterAgencyTypes);
+		document.getElementById("agencySelect").addEventListener("click", filterAgencies);
 
 		//Load in the csv, and call myMap with it.
 		$(document).ready(function() {
