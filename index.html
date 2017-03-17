@@ -53,7 +53,7 @@
 		var agencyTypes = [];
 		var locations = [];
 
-		function Location(oldLocation, point, marker) {
+		function Location(oldLocation, point, infoWindow) {
 			this.FID = oldLocation.FID;
 			this.GID = oldLocation.GID;
 			this.type = oldLocation.type;
@@ -77,7 +77,7 @@
 			this.lat = oldLocation.lat;
 			this.lng = oldLocation.lng;
 			this.point = point;
-			this.marker = marker;
+			this.infoWindow = infoWindow;
 		}
 
 		function OldLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, public, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
@@ -156,6 +156,7 @@
 			console.log("Length of saved data: " + JSON.parse(localStorage.getItem("locations")).length);
 			locations = JSON.parse(localStorage.getItem("locations"));
 			if (locations === null || locations.length < 100) {
+				console.log("We're doing it the old-fashioned way.");
 
 				var data = Papa.parse(text);
 				for (var i = 1; i < data.data.length; i++) {
@@ -163,21 +164,13 @@
 
 					var loc = new OldLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
 
-					var point = {
-						lat: parseFloat(loc.lat),
-						lng: parseFloat(loc.lng)
-					}
+					var lat = parseFloat(loc.lat);
+					var lng = parseFloat(loc.lng);
+					var name = loc.name;
 
-					var marker = new google.maps.Marker({
-						position: loc.point,
-						icon: {
-							path: google.maps.SymbolPath.CIRCLE,
-							scale: 5
-						},
-						title: loc.name
-					});
 
-					var newLoc = new Location(loc, point, marker);
+
+					var newLoc = new Location(loc, null, null);
 
 					locations.push(newLoc);
 				}
@@ -208,50 +201,57 @@
 
 			var totalTime = 0;
 
+
+
 			for (var i = 0; i < locations.length; i++) {
 				var loc = locations[i];
 				addAgencyType(loc);
 
-				var start = new Date().getTime();
+				var marker = new google.maps.Marker({
+					position: {
+						lat: parseFloat(loc.lat),
+						lng: parseFloat(loc.lng)
+					},
+					map: map,
+					title: loc.name
+				});
 
-
-				var end = new Date().getTime();
-				totalTime = totalTime + (end - start);
-
-				markers.push(loc.marker);
-				if (i == 0) {
-					console.log(loc.marker);
-					console.log()
-				}
+				markers.push(marker);
 
 				//A closure to make sure that infoWindows are created for their own markers.
 				(function(_marker) {
 
-					//An attempt to close the previously opened window.
-					if (infowindow) infowindow.close();
-
+					var start = new Date().getTime();
+					//Create the info window based on the content variable ^^
 
 					var content = '<h5><a href="' + loc.contactURL + '">' + loc.name + '</a></h5><p><b>Agency:</b> ' + loc.organization + '<br><b>Location:</b> ' + loc.description + '<br><b>Site Number:</b> ' + loc.siteNo + '<br><b>Parameter(s) sampled:</b> ' + loc.parameter + '<br><b>Parameter Type:</b> ' + loc.parameterType + '<br><b>Monitoring Frequency:</b> ' + loc.frequency + '<br><b>Publicly Availible?:</b> ' + loc.public + '<br><b>Data Quality Information:</b> ' + loc.quality + '<br><b>Date of record:</b> ' + loc.startDate + ' to ' + loc.endDate + '<br><b>HUC12:</b> ' + loc.huc12 + '</p>';
 
-					//Create the info window based on the content variable ^^
 					var infowindow = new google.maps.InfoWindow({
 						content: content,
 						maxWidth: 400
 					});
 
+
+
+					var end = new Date().getTime();
+					totalTime = totalTime + (end - start);
+
 					//Add the on click listener to the marker.
 					_marker.addListener('click', function() {
+						//An attempt to close the previously opened window.
+						if (infowindow) infowindow.close();
 						infowindow.open(map, _marker);
 					});
 
-				}(loc.marker));
+				}(marker));
+
+
 			}
+
 
 			console.log("Time: " + totalTime);
 
 			agencyTypes.sort();
-
-			console.log(agencyTypes);
 
 			// Add a marker clusterer to manage the markers.
 			var markerCluster = new MarkerClusterer(map, markers, {
@@ -260,8 +260,6 @@
 			});
 
 			populateAgencyType();
-
-			console.log(locations);
 
 			var items = JSON.parse(localStorage.getItem("locations"));
 			if (items === null || items.length < 100) {
