@@ -30,8 +30,7 @@
 			<div id="searchTools" class="container">
 				<h2 style="margin:5px auto;width:50%;">Search Tools</h2>
 				<div class="form-group">
-					<label for="city">City</label>
-					<input type="text" class="form-control" id="city">
+					<input type="text" class="form-control" id="city" placeholder="City">
 					<button type="submit" id="searchCity" class="btn btn-lg btn-primary btn-block">Search</button>
 				</div>
 				<hr/>
@@ -45,9 +44,17 @@
 						<option>Show all</option>
 					</select>
 				</div>
+				<hr/>
+				<div class="form-group">
+					<select id="datasetSelect" class="form-control">
+						<option>Select Dataset Name</option>
+						<option>Show all</option>
+					</select>
+				</div>
 			</div>
 		</div>
 	</div>
+	<p style="margin-right:20px;margin-left:20px;">This project has been funded wholly or in part by the United States Environmental Protection Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The contents of this document do not necessarily reflect the views and policies of the Environmental Protection Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for use. Read more information on the Indiana Department of Environmental Management's <a href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
 	<script src="lib/papaparse.js"></script>
 	<script src="lib/markerclusterer.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -56,6 +63,7 @@
 		var map;
 		var agencyNames = [];
 		var agencyTypes = [];
+		var datasetNames = [];
 		var locations = [];
 		var start;
 		var cluster;
@@ -160,6 +168,12 @@
 			}
 		}
 
+		function addDatasetName(loc) {
+			if (!datasetNames.includes(loc.name)) {
+				datasetNames.push(loc.name);
+			}
+		}
+
 		function parse(text) {
 			start = new Date().getTime();
 
@@ -232,6 +246,7 @@
 			for (var i = 0; i < locations.length; i++) {
 				var loc = locations[i];
 				addAgencyType(loc);
+				addDatasetName(loc);
 
 				loc.marker.setMap(map);
 
@@ -275,6 +290,7 @@
 			console.log("Time: " + totalTime);
 
 			populateAgencyType();
+			populateDatasetName();
 
 			var items = JSON.parse(localStorage.getItem("locations"));
 			if (items === null || items.length < 100) {
@@ -295,18 +311,86 @@
 			var input = document.getElementById("city");
 			var cityAndState = input.value + ", IN";
 
-			geocoder.geocode({
-				'address': cityAndState
-			}, function(results, status) {
+			if (input.value === null || input.value === "") {
+				var center = {
+					lat: 39.7684,
+					lng: -86.1581
+				};
 
-				if (status == google.maps.GeocoderStatus.OK) {
+				var mapOptions = {
+					center: center,
+					zoom: 7
+				};
+				map.setOptions(mapOptions);
+				return;
+			} else {
 
-					console.log("location: " + results[0].geometry.location.lat() + " " + results[0].geometry.location.lng());
-					map.setCenter(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
-					map.setZoom(13);
-				}
-			});
+				geocoder.geocode({
+					'address': cityAndState
+				}, function(results, status) {
+
+					if (status == google.maps.GeocoderStatus.OK) {
+
+						console.log("location: " + results[0].geometry.location.lat() + " " + results[0].geometry.location.lng());
+						map.setCenter(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
+						map.setZoom(13);
+					}
+				});
+
+				console.log(input.value.length);
+
+			}
+
 		};
+
+		function populateDatasetName() {
+			var datasetSelect = document.getElementById("datasetSelect");
+			datasetNames.forEach(function(name) {
+				var el = document.createElement("option");
+				el.textContent = name;
+				el.value = name;
+				datasetSelect.appendChild(el);
+			})
+		}
+
+		function filterDatasetNames() {
+			var select = document.getElementById("datasetSelect");
+			var val = select.value;
+
+			if (val !== "Select Dataset Name") {
+				var bounds = new google.maps.LatLngBounds();
+
+				cluster.clearMarkers();
+				cluster = null;
+				markers = [];
+
+				locations.forEach(function(loc) {
+
+					if (val === "Show all") {
+
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+					} else if (loc.name === val) {
+
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+						bounds.extend(loc.marker.position);
+					}
+				});
+
+				cluster = new MarkerClusterer(map, markers, {
+					imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+					maxZoom: 15 //An arbitrary value that seems to work well.
+				});
+
+				if (val !== "Show all") {
+					map.fitBounds(bounds);
+					if (map.getZoom() > 13) {
+						map.setZoom(13);
+					}
+				}
+			}
+		}
 
 		function populateAgencyType() {
 			var agencyTypeSelect = document.getElementById("agencyTypeSelect");
@@ -453,9 +537,10 @@
 			agencySelect.disabled = false;
 		}
 
-		document.getElementById("searchCity").addEventListener("click", searchCity);
+		document.getElementById("city").addEventListener("keyup", searchCity);
 		document.getElementById("agencyTypeSelect").addEventListener("click", filterAgencyTypes);
 		document.getElementById("agencySelect").addEventListener("click", filterAgencies);
+		document.getElementById("datasetSelect").addEventListener("click", filterDatasetNames);
 
 		//Load in the csv, and call myMap with it.
 		$(document).ready(function() {
