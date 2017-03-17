@@ -51,6 +51,13 @@
 						<option>Show all</option>
 					</select>
 				</div>
+				<hr/>
+				<div class="form-group">
+					<select id="parameterSelect" class="form-control">
+						<option>Select Parameter Type</option>
+						<option>Show all</option>
+					</select>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -64,6 +71,7 @@
 		var agencyNames = [];
 		var agencyTypes = [];
 		var datasetNames = [];
+		var parameterTypes = [];
 		var locations = [];
 		var start;
 		var cluster;
@@ -174,6 +182,12 @@
 			}
 		}
 
+		function addParameterType(loc) {
+			if (!parameterTypes.includes(loc.parameter)) {
+				parameterTypes.push(loc.parameter);
+			}
+		}
+
 		function parse(text) {
 			start = new Date().getTime();
 
@@ -247,6 +261,7 @@
 				var loc = locations[i];
 				addAgencyType(loc);
 				addDatasetName(loc);
+				addParameterType(loc);
 
 				loc.marker.setMap(map);
 
@@ -291,6 +306,7 @@
 
 			populateAgencyType();
 			populateDatasetName();
+			populateParameterTypes();
 
 			var items = JSON.parse(localStorage.getItem("locations"));
 			if (items === null || items.length < 100) {
@@ -343,6 +359,55 @@
 
 		};
 
+		function populateParameterTypes() {
+			var select = document.getElementById("parameterSelect");
+			parameterTypes.forEach(function(type) {
+				var el = document.createElement("option");
+				el.textContent = type;
+				el.value = type;
+				select.appendChild(el);
+			});
+		}
+
+		function filterParameterTypes() {
+			var select = document.getElementById("parameterSelect");
+			var val = select.value;
+
+			if (val !== "Select Parameter Type") {
+				var bounds = new google.maps.LatLngBounds();
+
+				cluster.clearMarkers();
+				cluster = null;
+				markers = [];
+
+				locations.forEach(function(loc) {
+
+					if (val === "Show all") {
+
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+					} else if (loc.parameter === val) {
+
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+						bounds.extend(loc.marker.position);
+					}
+				});
+
+				cluster = new MarkerClusterer(map, markers, {
+					imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+					maxZoom: 15 //An arbitrary value that seems to work well.
+				});
+
+				if (val !== "Show all") {
+					map.fitBounds(bounds);
+					if (map.getZoom() > 13) {
+						map.setZoom(13);
+					}
+				}
+			}
+		}
+
 		function populateDatasetName() {
 			var datasetSelect = document.getElementById("datasetSelect");
 			datasetNames.forEach(function(name) {
@@ -350,7 +415,7 @@
 				el.textContent = name;
 				el.value = name;
 				datasetSelect.appendChild(el);
-			})
+			});
 		}
 
 		function filterDatasetNames() {
@@ -541,6 +606,7 @@
 		document.getElementById("agencyTypeSelect").addEventListener("click", filterAgencyTypes);
 		document.getElementById("agencySelect").addEventListener("click", filterAgencies);
 		document.getElementById("datasetSelect").addEventListener("click", filterDatasetNames);
+		document.getElementById("parameterSelect").addEventListener("click", filterParameterTypes);
 
 		//Load in the csv, and call myMap with it.
 		$(document).ready(function() {
