@@ -18,8 +18,10 @@
 	margin-bottom: 10px;
 }
 
-#agencyTypeSelect {
-	margin-bottom: 10px;
+#agencyTypeSelect {}
+
+#agencySelect {
+	margin-top: 10px;
 }
 
 .select button {
