@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="width = device-width, initial-scale = 1">
+	<link rel="stylesheet" type="text/css" href="managment.css">
+	<link rel="stylesheet" type="text/css" href="common.css">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<title>IWMI Managment</title>
+</head>
+
+<body>
+	<div class="container" style="height:100%;width:100%;">
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<div class="navbar-header"> <a class="navbar-brand" href="#">IWMI</a> </div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="index.html" id="mapNav">Map</a></li>
+						<li class="active"><a href="#" id="managment">Managment</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<a href="user.html" id="userTab"></a>
+						</li>
+						<li id="loginNav"><a href="login.html" style="position:absolute;visibility: hidden;">Login</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<h3>Managment</h3>
+
+		<table class="table" id="locationTable">
+			<thead>
+				<tr>
+					<th contenteditable="false">Agency Type</th>
+					<th contenteditable="false">Organization Type</th>
+				</tr>
+				<tr>
+					<td contenteditable="true">Ben</td>
+					<td class="agencyType">
+						<select class="form-control agencyTypeDropdown">
+								<option>stuff</option>
+							</select>
+					</td>
+				</tr>
+			</thead>
+
+		</table>
+
+	</div>
+
+	<script src="lib/papaparse.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script>
+		var locations;
+		var users;
+
+		//USE getElementById().getElementsByClassName("class");
+
+		console.log(document.getElementById("locationTable").getElementsByClassName("agencyType")[0].getElementsByClassName('agencyTypeDropdown')[0].value);
+
+		function parseUsers(data) {
+			users = JSON.parse(data);
+			var userTab = document.getElementById("userTab");
+			userTab.textContent = localStorage.getItem("name");
+			userTab.visibility = "visible";
+		}
+
+		function parseLocations(data) {
+			//locations = JSON.parse(data);
+		}
+
+		$(document).ready(function() {
+			$.ajax({
+				type: "GET",
+				url: "res/inwater.csv",
+				dataType: "text",
+				success: function(data) {
+					parseLocations(data);
+				}
+			});
+
+			$.ajax({
+				type: "GET",
+				url: "res/.users.json",
+				dataType: "text",
+				success: function(data) {
+					parseUsers(data);
+				}
+			});
+		});
+
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>

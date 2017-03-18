@@ -2,40 +2,107 @@
 <html>
 
 <head>
-  <meta name="viewport" content="width = device-width, initial-scale = 1">
-  <link rel="stylesheet" type="text/css" href="login.css">
-  <link rel="stylesheet" type="text/css" href="common.css">
-  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-  <title>Login to IWMI</title>
+	<meta name="viewport" content="width = device-width, initial-scale = 1">
+	<link rel="stylesheet" type="text/css" href="login.css">
+	<link rel="stylesheet" type="text/css" href="common.css">
+	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<title>Login to IWMI</title>
 </head>
 
 <body>
-  <div class="container" style="height:100%;width:100%;">
-    <nav class="navbar navbar-default">
-      <div class="container-fluid">
-        <div class="navbar-header"> <a class="navbar-brand" href="#">IWMI</a> </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="#" id="mapNav">Map</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li id="loginNav"><a href="login.html">Login</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-    <form class="form-signin">
-      <h2 class="form-signin-heading">Please sign in</h2>
-      <label for="inputEmail" class="sr-only">Email address</label>
-      <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
-      <label for="inputPassword" class="sr-only">Password</label>
-      <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
-      <button id="signIn" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-    </form>
-  </div>
-  <script src="script.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<div class="container" style="height:100%;width:100%;">
+		<nav class="navbar navbar-default">
+			<div class="container-fluid">
+				<div class="navbar-header"> <a class="navbar-brand" href="#">IWMI</a> </div>
+				<div id="navbar" class="navbar-collapse collapse">
+					<ul class="nav navbar-nav">
+						<li><a href="#" id="mapNav">Map</a></li>
+					</ul>
+					<ul class="nav navbar-nav navbar-right">
+						<li id="loginNav"><a href="login.html">Login</a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+		<div id="form" class="form-group">
+			<h2>Please sign in</h2>
+			<input type="email" id="inputEmail" class="form-control" placeholder="Email address">
+			<input type="password" id="inputPassword" class="form-control" placeholder="Password">
+			<button id="signIn" class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+		</div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script>
+		var users;
+		var locations;
+
+		/* SAMPLE USER JS OBJECT:
+		User:
+			Name
+			Password
+			Email
+			URL
+			Publicly availible (boolean)
+			Datasets [id]
+		*/
+
+		document.getElementById("signIn").addEventListener("click", signIn);
+
+		function signIn() {
+			var email = document.getElementById("inputEmail");
+			var password = document.getElementById("inputPassword");
+
+			var found = false;
+
+			for (var i = 0; i < users.length; i++) {
+				user = users[i];
+				if (user.email === email.value && user.password === password.value) {
+					found = true;
+					localStorage.setItem("email", user.email);
+					localStorage.setItem("name", user.name);
+				}
+			}
+
+			if (localStorage.getItem("email")) {
+				window.location.replace("/managment.html");
+
+			} else {
+				alert("Incorrect email/password");
+			}
+		}
+
+		function parseUsers(data) {
+			users = JSON.parse(data);
+		}
+
+		function parseLocations(data) {
+			//locations = JSON.parse(data);
+		}
+
+		//Load in the csv, and call myMap with it.
+		$(document).ready(function() {
+			$.ajax({
+				type: "GET",
+				url: "res/.users.json",
+				dataType: "text",
+				success: function(data) {
+					parseUsers(data);
+				}
+			})
+
+			$.ajax({
+				type: "GET",
+				url: "res/inwater.csv",
+				dataType: "text",
+				success: function(data) {
+					parseLocations(data);
+				}
+			})
+		});
+
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </body>
 
 </html>

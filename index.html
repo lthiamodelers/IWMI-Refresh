@@ -10,16 +10,26 @@
 </head>
 
 <body>
+	<!-- Fork me on GitHub banner -->
 	<a href="https://github.com/lthiamodelers/IWMI-Refresh"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+
+
 	<div class="container" style="height:100%;width:100%;">
+
 		<nav class="navbar navbar-default" style="width: calc(100% - 150px);">
+
 			<div class="container-fluid" style="height:100%;width:100%;">
+
 				<div class="navbar-header"> <a class="navbar-brand" href="#">IWMI</a> </div>
+
 				<div id="navbar" class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
 						<li class="active"><a href="#" id="mapNav">Map</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
+						<li id="userTab">
+							<a href="#"></a>
+						</li>
 						<li id="loginNav"><a href="login.html">Login</a></li>
 					</ul>
 				</div>
@@ -31,7 +41,6 @@
 				<h2 style="margin:5px auto;width:50%;">Search Tools</h2>
 				<div class="form-group">
 					<input type="text" class="form-control" id="city" placeholder="City">
-					<button type="submit" id="searchCity" class="btn btn-lg btn-primary btn-block">Search</button>
 				</div>
 				<hr/>
 				<div class="form-group">
@@ -59,9 +68,11 @@
 					</select>
 				</div>
 			</div>
+
 		</div>
+		<p style="margin-right:20px;margin-left:20px;">This project has been funded wholly or in part by the United States Environmental Protection Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The contents of this document do not necessarily reflect the views and policies of the Environmental Protection Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for use. Read more information on the Indiana Department of Environmental Management's <a href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
 	</div>
-	<p style="margin-right:20px;margin-left:20px;">This project has been funded wholly or in part by the United States Environmental Protection Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The contents of this document do not necessarily reflect the views and policies of the Environmental Protection Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for use. Read more information on the Indiana Department of Environmental Management's <a href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
+
 	<script src="lib/papaparse.js"></script>
 	<script src="lib/markerclusterer.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -73,9 +84,29 @@
 		var datasetNames = [];
 		var parameterTypes = [];
 		var locations = [];
-		var start;
 		var cluster;
 		var oldType = "Select Agency Type";
+		var userLoggedIn;
+		var users;
+
+		if (localStorage.getItem("email") !== null && localStorage.getItem("email") !== "") {
+			//A user is logged in
+			var found = false;
+			//Find the user, and set userLoggedIn to that user.
+			for (var i = 0; i < users.length; i++) {
+				var user = users[i];
+				if (user.email === localStorage.getItem("email")) {
+					found = true;
+					userLoggedIn = user;
+					var userTab = document.getElementById("userTab");
+					userTab.visibility = "visible";
+					userTab.value = user.name;
+					break;
+				}
+			}
+
+
+		}
 
 		function Location(oldLocation, marker) {
 			this.oldLocation = oldLocation;
@@ -141,6 +172,9 @@
 			}
 		}
 
+		function parseUsers(data) {
+			users = JSON.parse(data);
+		}
 
 		function addAgencyType(loc) {
 			//Could we find the agency type in the array?
@@ -189,8 +223,6 @@
 		}
 
 		function parse(text) {
-			start = new Date().getTime();
-
 			console.log("Length of saved data: " + JSON.parse(localStorage.getItem("locations")).length);
 			oldLocations = JSON.parse(localStorage.getItem("locations"));
 			if (oldLocations === null || oldLocations.length < 100) {
@@ -255,8 +287,6 @@
 			//Empty array to put the markers in as they are created. This will be used to make a markerClusterer
 			var markers = [];
 
-			var totalTime = 0;
-
 			for (var i = 0; i < locations.length; i++) {
 				var loc = locations[i];
 				addAgencyType(loc);
@@ -298,11 +328,6 @@
 				imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
 				maxZoom: 15 //An arbitrary value that seems to work well.
 			});
-
-			var end = new Date().getTime();
-			totalTime = totalTime + (end - start);
-
-			console.log("Time: " + totalTime);
 
 			populateAgencyType();
 			populateDatasetName();
@@ -617,8 +642,7 @@
 				success: function(data) {
 					parse(data);
 				}
-			})
-
+			});
 		});
 
 	</script>
