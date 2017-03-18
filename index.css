@@ -45,3 +45,24 @@
 .option {
 	width: 100%;
 }
+
+.navbar {
+    width: calc(100% - 150px);
+}
+
+#searchToolsHeader {
+	margin: 5px auto;
+	width: 50%;
+}
+
+#disclaimer {
+	margin-right: 20px;
+	margin-left: 20px;
+}
+
+#forkMe {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: 0;
+}
