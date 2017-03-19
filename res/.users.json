@@ -1,10 +1,10 @@
 [
-	{
-		"name": "Ben Scholer",
-		"password": "test",
-		"agencyType": "TEST",
-		"email": "bscholer@purdue.edu",
-		"url": "https://github.com/Bobby2552",
-		"publiclyAvailible": false
-	}
+  {
+    "name": "Ben Scholer",
+    "password": "test",
+    "agencyType": "TEST",
+    "email": "bscholer@purdue.edu",
+    "url": "https://github.com/Bobby2552",
+    "publiclyAvailible": false
+  }
 ]
