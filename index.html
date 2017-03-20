@@ -5,15 +5,19 @@
 
 <head>
 	<meta name="viewport" content="width = device-width, initial-scale = 1">
-	<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
-	<link rel="stylesheet" type="text/css" href="index.css" />
+	<link rel="stylesheet" type="text/css"
+		  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="index.css"/>
 	<link rel="stylesheet" type="text/css" href="common.css">
 	<title>IWMI</title>
 </head>
 
 <body>
 	<!-- Fork me on GitHub banner -->
-	<a href="https://github.com/lthiamodelers/IWMI-Refresh"><img id="forkMe" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+	<a href="https://github.com/lthiamodelers/IWMI-Refresh"><img id="forkMe"
+																 src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+																 alt="Fork me on GitHub"
+																 data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
 
 
 	<div class="container">
@@ -73,7 +77,13 @@
 			</div>
 
 		</div>
-		<p id="disclaimer">This project has been funded wholly or in part by the United States Environmental Protection Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The contents of this document do not necessarily reflect the views and policies of the Environmental Protection Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for use. Read more information on the Indiana Department of Environmental Management's <a href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
+		<p id="disclaimer">This project has been funded wholly or in part by the United States Environmental Protection
+			Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The
+			contents of this document do not necessarily reflect the views and policies of the Environmental Protection
+			Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for
+			use. Read more information on the Indiana Department of Environmental Management's <a
+					href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a
+					href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
 	</div>
 
 	<script src="lib/papaparse.js"></script>
@@ -85,13 +95,13 @@
 		var agencyNames = [];
 		var agencyTypes = [];
 		var datasetNames = [];
-		var parameterTypes = [];
 		var locations = [];
 		var cluster;
 		var oldType = "Select Agency Type";
 		var userLoggedIn;
 		var users;
-		var agencyTypes = ["Cities and towns (except drinking water)", "Counties", "Drinking water", "Federal and regional agencies", "Non-governmental organizations", "Private sector", "State agencies", "Universities", "Volunteers", "Watershed organizations"];
+		//This variable needs to be assigned dynamically.
+		var parameterTypes = ["Aquatic Plants/Algal Biomass", "Bacteriology/Microbiology", "Fish", "Flow/Stage", "General Chemistry", "Groundwater Level", "Groundwater Quality", "Habitat", "Lake Clarity", "Macroinvertebrates", "Metals", "Nutrients", "Organics/Pesticides", "Radiological", "Hoosier Riverwatch"];
 
 		var userTab = document.getElementById("userTab");
 		var loginTab = document.getElementById("loginNav");
@@ -217,11 +227,12 @@
 			}
 		}
 
-		function addParameterType(loc) {
-			if (!parameterTypes.includes(loc.parameter)) {
-				parameterTypes.push(loc.parameter);
-			}
-		}
+		//THIS NEEDS FIXED
+		//		function addParameterType(loc) {
+		//			if (!parameterTypes.includes(loc.parameter)) {
+		//				parameterTypes.push(loc.parameter);
+		//			}
+		//		}
 
 		function parse(text) {
 			console.log("Length of saved data: " + JSON.parse(localStorage.getItem("locations")).length);
@@ -253,7 +264,7 @@
 					locations.push(newLoc);
 				}
 			} else {
-				oldLocations.forEach(function(loc) {
+				oldLocations.forEach(function (loc) {
 					var marker = new google.maps.Marker({
 						position: {
 							lat: parseFloat(loc.lat),
@@ -293,14 +304,14 @@
 				var loc = locations[i];
 				addAgencyType(loc);
 				addDatasetName(loc);
-				addParameterType(loc);
+				//addParameterType(loc);
 
 				loc.marker.setMap(map);
 
 				markers.push(loc.marker);
 
 				//A closure to make sure that infoWindows are created for their own markers.
-				(function(_marker) {
+				(function (_marker) {
 
 
 					//Create the info window based on the content variable ^^
@@ -319,7 +330,7 @@
 					});
 
 					//Add the on click listener to the marker.
-					_marker.addListener('click', function() {
+					_marker.addListener('click', function () {
 						//An attempt to close the previously opened window.
 						if (infowindow) infowindow.close();
 						infowindow.open(map, _marker);
@@ -344,7 +355,7 @@
 			var items = JSON.parse(localStorage.getItem("locations"));
 			if (items === null || items.length < 100) {
 				var oldLocations = [];
-				locations.forEach(function(loc) {
+				locations.forEach(function (loc) {
 					oldLocations.push(loc.oldLocation);
 				});
 				console.log("Saving!!");
@@ -375,7 +386,7 @@
 
 				geocoder.geocode({
 					'address': cityAndState
-				}, function(results, status) {
+				}, function (results, status) {
 
 					if (status == google.maps.GeocoderStatus.OK) {
 
@@ -393,12 +404,15 @@
 
 		function populateParameterTypes() {
 			var select = document.getElementById("parameterSelect");
-			parameterTypes.forEach(function(type) {
-				var el = document.createElement("option");
-				el.textContent = type;
-				el.value = type;
-				select.appendChild(el);
-			});
+			if (select.getElementsByTagName("option").length < 3) {
+				parameterTypes.forEach(function (type) {
+					console.log("Par. Type: " + type);
+					var el = document.createElement("option");
+					el.textContent = type;
+					el.value = type;
+					select.appendChild(el);
+				});
+			}
 		}
 
 		function filterParameterTypes() {
@@ -412,13 +426,14 @@
 				cluster = null;
 				markers = [];
 
-				locations.forEach(function(loc) {
-
+				locations.forEach(function (loc) {
 					if (val === "Show all") {
 
 						loc.marker.setVisible(true);
 						markers.push(loc.marker);
-					} else if (loc.parameter === val) {
+
+						//Search to see if parameterType contains val in a regex format.
+					} else if (loc.parameterType.indexOf(val) !== -1 && loc.parameterType !== undefined) {
 
 						loc.marker.setVisible(true);
 						markers.push(loc.marker);
@@ -442,7 +457,7 @@
 
 		function populateDatasetName() {
 			var datasetSelect = document.getElementById("datasetSelect");
-			datasetNames.forEach(function(name) {
+			datasetNames.forEach(function (name) {
 				var el = document.createElement("option");
 				el.textContent = name;
 				el.value = name;
@@ -461,7 +476,7 @@
 				cluster = null;
 				markers = [];
 
-				locations.forEach(function(loc) {
+				locations.forEach(function (loc) {
 
 					if (val === "Show all") {
 
@@ -512,7 +527,7 @@
 					cluster = null;
 					markers = [];
 
-					locations.forEach(function(loc) {
+					locations.forEach(function (loc) {
 
 						if (val === "Show all") {
 
@@ -561,7 +576,7 @@
 				cluster = null;
 				markers = [];
 
-				locations.forEach(function(loc) {
+				locations.forEach(function (loc) {
 
 					if (loc.type === typeSelect.value && loc.organization === val) {
 
@@ -575,7 +590,7 @@
 					}
 				});
 
-				markers.forEach(function(mark) {
+				markers.forEach(function (mark) {
 					bounds.extend(mark.position);
 				});
 
@@ -601,7 +616,7 @@
 				agencySelect.options[i] = null;
 			}
 
-			agencyNames.forEach(function(name) {
+			agencyNames.forEach(function (name) {
 				if (type === "Show all") {
 					for (i = 1; i < name.length; i++) {
 						var el = document.createElement("option");
@@ -628,12 +643,12 @@
 		document.getElementById("parameterSelect").addEventListener("click", filterParameterTypes);
 
 		//Load in the csv, and call myMap with it.
-		$(document).ready(function() {
+		$(document).ready(function () {
 			$.ajax({
 				type: "GET",
 				url: "res/inwater.csv",
 				dataType: "text",
-				success: function(data) {
+				success: function (data) {
 					parse(data);
 				}
 			});
