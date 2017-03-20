@@ -6,5 +6,13 @@
     "email": "bscholer@purdue.edu",
     "url": "https://github.com/Bobby2552",
     "publiclyAvailible": false
+  },
+  {
+  	name: Larry Theller,
+	password: test,
+	agencyType: TEST,
+	email: theller@purdue.edu,
+	url: https://engineering.purdue.edu/ABE/people/ptProfile?resource_id=43121,
+	publiclyAvailible: false
   }
 ]
