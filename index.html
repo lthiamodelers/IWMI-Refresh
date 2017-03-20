@@ -74,6 +74,16 @@
 						<option>Show all</option>
 					</select>
 				</div>
+				<hr/>
+				<form id="hucForm" class="form-horizontal" data-fv-framework="bootstrap"
+					  data-fv-icon-valid="glyphicon glyphicon-ok"
+					  data-fv-icon-invalid="glyphicon glyphicon-remove"
+					  data-fv-icon-validating="glyphicon glyphicon-refresh">
+					<div class="form-group">
+						<input type="text" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12"
+							   minlength="8" data-fv-stringlength-message="Number must be 8, 10, or 12 digits long">
+					</div>
+				</form>
 			</div>
 
 		</div>
@@ -652,6 +662,7 @@
 					parse(data);
 				}
 			});
+			$('#hucForm').formValidation();
 		});
 
 	</script>
