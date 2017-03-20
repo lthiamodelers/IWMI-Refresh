@@ -92,7 +92,9 @@
 		}
 
 		function logout() {
-
+			localStorage.removeItem("email");
+			localStorage.removeItem("name");
+			window.location.replace("/IWMI/index.html");
 		}
 
 		document.getElementById("logout").addEventListener("click", logout);
