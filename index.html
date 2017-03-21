@@ -579,8 +579,6 @@
 
 				for (var i = 2; i < agencySelect.options.length; i++) {
 
-					console.log("Deleting '" + agencySelect.options[i].value + "'.");
-
 					agencySelect.options[i] = null;
 				}
 
@@ -599,6 +597,7 @@
 
 							loc.marker.setVisible(true);
 							markers.push(loc.marker);
+
 						} else if (loc.type === val) {
 
 							loc.marker.setVisible(true);
@@ -621,11 +620,19 @@
 
 
 				}
-				populateAgencies(val);
+				if (val !== "Show all") {
+					populateAgencies(val);
+				} else {
+					map.setCenter(center);
+					map.setZoom(7);
+				}
 			} else {
 				agencySelect.disabled = true;
 			}
 
+			if (val === "Show all") {
+				agencySelect.disabled = true;
+			}
 			oldType = val;
 		}
 
