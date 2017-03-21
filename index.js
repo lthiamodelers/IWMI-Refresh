@@ -91,7 +91,6 @@ function populateAgencyType() {
 	for (var i = 0; i < agencyTypes.length - 1; i++) {
 		var type = agencyTypes[i];
 		var el = document.createElement("option");
-		console.log("Type: " + type);
 		el.textContent = type;
 		el.value = type;
 		agencyTypeSelect.appendChild(el);
@@ -153,7 +152,6 @@ function addDatasetName(loc) {
 function parse(text) {
 	oldLocations = JSON.parse(localStorage.getItem("locations"));
 	if (oldLocations === null || oldLocations.length < 100) {
-		console.log("We're doing it the old-fashioned way.");
 
 		var data = Papa.parse(text);
 		for (var i = 1; i < data.data.length; i++) {
@@ -269,7 +267,6 @@ function myMap() {
 		locations.forEach(function (loc) {
 			oldLocations.push(loc.oldLocation);
 		});
-		console.log("Saving!!");
 		localStorage.setItem("locations", JSON.stringify(oldLocations));
 	}
 
@@ -301,13 +298,11 @@ function searchCity() {
 
 			if (status == google.maps.GeocoderStatus.OK) {
 
-				console.log("location: " + results[0].geometry.location.lat() + " " + results[0].geometry.location.lng());
 				map.setCenter(new google.maps.LatLng(results[0].geometry.location.lat(), results[0].geometry.location.lng()));
 				map.setZoom(13);
 			}
 		});
 
-		console.log(input.value.length);
 
 	}
 
@@ -317,7 +312,6 @@ function populateParameterTypes() {
 	var select = document.getElementById("parameterSelect");
 	if (select.getElementsByTagName("option").length < 3) {
 		parameterTypes.forEach(function (type) {
-			console.log("Par. Type: " + type);
 			var el = document.createElement("option");
 			el.textContent = type;
 			el.value = type;
@@ -488,7 +482,6 @@ function filterAgencyTypes() {
 			agencySelect.options[i] = null;
 		}
 
-		console.log("Old Type: " + oldType);
 		if (val !== oldType) {
 
 			var bounds = new google.maps.LatLngBounds();
@@ -589,8 +582,6 @@ function populateAgencies(type) {
 	var agencySelect = document.getElementById("agencySelect");
 
 	for (var i = 2; i < agencySelect.options.length; i++) {
-
-		console.log("Deleting '" + agencySelect.options[i].value + "'.");
 
 		agencySelect.options[i] = null;
 	}
