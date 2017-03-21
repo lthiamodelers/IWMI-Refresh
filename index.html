@@ -75,15 +75,9 @@
 					</select>
 				</div>
 				<hr/>
-				<form id="hucForm" class="form-horizontal" data-fv-framework="bootstrap"
-					  data-fv-icon-valid="glyphicon glyphicon-ok"
-					  data-fv-icon-invalid="glyphicon glyphicon-remove"
-					  data-fv-icon-validating="glyphicon glyphicon-refresh">
-					<div class="form-group">
-						<input type="text" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12"
-							   minlength="8" data-fv-stringlength-message="Number must be 8, 10, or 12 digits long">
-					</div>
-				</form>
+				<div class="form-group">
+					<input type="number" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12">
+				</div>
 			</div>
 
 		</div>
@@ -112,6 +106,11 @@
 		var users;
 		//This variable needs to be assigned dynamically.
 		var parameterTypes = ["Aquatic Plants/Algal Biomass", "Bacteriology/Microbiology", "Fish", "Flow/Stage", "General Chemistry", "Groundwater Level", "Groundwater Quality", "Habitat", "Lake Clarity", "Macroinvertebrates", "Metals", "Nutrients", "Organics/Pesticides", "Radiological", "Hoosier Riverwatch"];
+		//Google search "Indianapolis, IN lat long". Will be used as the center point.
+		var center = {
+			lat: 39.7684,
+			lng: -86.1581
+		};
 
 		var userTab = document.getElementById("userTab");
 		var loginTab = document.getElementById("loginNav");
@@ -156,7 +155,7 @@
 			this.marker = marker;
 		}
 
-		function OldLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, publiclyAvailible, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
+		function BasicLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, publiclyAvailible, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
 			this.FID = FID;
 			this.GID = GID;
 			this.type = type;
@@ -254,7 +253,7 @@
 				for (var i = 1; i < data.data.length; i++) {
 					var a = data.data[i];
 
-					var loc = new OldLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
+					var loc = new BasicLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
 						a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
 
 					var lat = parseFloat(loc.lat);
@@ -290,11 +289,7 @@
 		}
 
 		function myMap() {
-			//Google search "Indianapolis, IN lat long". Will be used as the center point.
-			var center = {
-				lat: 39.7684,
-				lng: -86.1581
-			};
+
 
 			//Create the map with refrence to the #map element.
 			var mapCanvas = document.getElementById("map");
@@ -422,6 +417,67 @@
 					el.value = type;
 					select.appendChild(el);
 				});
+			}
+		}
+
+		function filterHUC() {
+			var huc = document.getElementById("hucSearch");
+
+
+			var bounds = new google.maps.LatLngBounds();
+			cluster.clearMarkers();
+			cluster = null;
+			markers = [];
+
+
+			if (huc.value.length == 7) {
+				//Use HUC8
+				locations.forEach(function (loc) {
+					if (loc.huc8 === huc.value) {
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+						bounds.extend(loc.marker.position);
+					}
+				});
+			} else if (huc.value.length == 9) {
+				//Use HUC10
+				locations.forEach(function (loc) {
+					if ((loc.huc10 + "") === (huc.value + "")) {
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+						bounds.extend(loc.marker.position);
+					}
+				});
+			} else if (huc.value.length == 11) {
+				//Use HUC12
+				locations.forEach(function (loc) {
+					if (loc.huc12 === huc.value) {
+						loc.marker.setVisible(true);
+						markers.push(loc.marker);
+						bounds.extend(loc.marker.position);
+					}
+				});
+			} else {
+				locations.forEach(function (loc) {
+					loc.marker.setVisible(true);
+					markers.push(loc.marker);
+				});
+			}
+
+			cluster = new MarkerClusterer(map, markers, {
+				imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+				maxZoom: 15 //An arbitrary value that seems to work well.
+			});
+
+			if (huc.value.length == 7 || huc.value.length == 9 || huc.value.length == 11) {
+				map.fitBounds(bounds);
+				if (map.getZoom() > 13) {
+					map.setZoom(13);
+				}
+
+			} else {
+				map.setCenter(center);
+				map.setZoom(7);
 			}
 		}
 
@@ -651,6 +707,7 @@
 		document.getElementById("agencySelect").addEventListener("click", filterAgencies);
 		document.getElementById("datasetSelect").addEventListener("click", filterDatasetNames);
 		document.getElementById("parameterSelect").addEventListener("click", filterParameterTypes);
+		document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 		//Load in the csv, and call myMap with it.
 		$(document).ready(function () {
@@ -662,7 +719,6 @@
 					parse(data);
 				}
 			});
-			$('#hucForm').formValidation();
 		});
 
 	</script>
