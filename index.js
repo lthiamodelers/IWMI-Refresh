@@ -16,6 +16,8 @@ var center = {
 	lng: -86.1581
 };
 
+parameterTypes.sort();
+
 var userTab = document.getElementById("userTab");
 var loginTab = document.getElementById("loginNav");
 var managmentTab = document.getElementById("managmentNav");
@@ -138,6 +140,7 @@ function addDatasetName(loc) {
 	if (!datasetNames.includes(loc.name)) {
 		datasetNames.push(loc.name);
 	}
+	datasetNames.sort();
 }
 
 //THIS NEEDS FIXED
