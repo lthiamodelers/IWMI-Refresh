@@ -87,47 +87,8 @@
 
 	<script src="lib/papaparse.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script>
-		var locations;
-		var users;
-
-		//USE getElementById().getElementsByClassName("class");
-
-		console.log(document.getElementById("locationTable").getElementsByClassName("agencyType")[0].getElementsByClassName('agencyTypeDropdown')[0].value);
-
-		function parseUsers(data) {
-			users = JSON.parse(data);
-			var userTab = document.getElementById("userTab");
-			userTab.textContent = localStorage.getItem("name");
-			userTab.visibility = "visible";
-		}
-
-		function parseLocations(data) {
-			//locations = JSON.parse(data);
-		}
-
-		$(document).ready(function() {
-			$.ajax({
-				type: "GET",
-				url: "res/inwater.csv",
-				dataType: "text",
-				success: function(data) {
-					parseLocations(data);
-				}
-			});
-
-			$.ajax({
-				type: "GET",
-				url: "res/.users.json",
-				dataType: "text",
-				success: function(data) {
-					parseUsers(data);
-				}
-			});
-		});
-
-	</script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="managment.js"></script>
 
 </body>
 

@@ -63,62 +63,8 @@
 	<script src="lib/markerclusterer.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-	<script>
-
-		var locations;
-		var users;
-		var userLoggedIn;
-		var agencyTypes = ["Cities and towns (except drinking water)", "Counties", "Drinking water", "Federal and regional agencies", "Non-governmental organizations", "Private sector", "State agencies", "Universities", "Volunteers", "Watershed organizations"];
-
-		users.forEach(function (user) {
-			if (user.name === localStorage.getItem("name")) {
-				userLoggedIn = user;
-			}
-		});
-
-		function parseUsers(data) {
-			users = JSON.parse(data);
-			var userTab = document.getElementById("userTab");
-			var settingsHeader = document.getElementById("settingsHeader");
-			settingsHeader.textContent = 'Settings - ' + localStorage.getItem("name");
-			userTab.textContent = localStorage.getItem("name");
-			userTab.visibility = "visible";
-		}
-
-		function parseLocations(data) {
-			//locations = JSON.parse(data);
-		}
-
-		function logout() {
-			localStorage.removeItem("email");
-			localStorage.removeItem("name");
-			window.location.replace("/IWMI/index.html");
-		}
-
-		document.getElementById("logout").addEventListener("click", logout);
-
-		$(document).ready(function () {
-			$.ajax({
-				type: "GET",
-				url: "res/inwater.csv",
-				dataType: "text",
-				success: function (data) {
-					parseLocations(data);
-				}
-			});
-
-			$.ajax({
-				type: "GET",
-				url: "res/.users.json",
-				dataType: "text",
-				success: function (data) {
-					parseUsers(data);
-				}
-			});
-		});
-
-	</script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="user.js"></script>
 
 </body>
 </html>
