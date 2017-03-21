@@ -151,7 +151,6 @@ function addDatasetName(loc) {
 //		}
 
 function parse(text) {
-	console.log("Length of saved data: " + JSON.parse(localStorage.getItem("locations")).length);
 	oldLocations = JSON.parse(localStorage.getItem("locations"));
 	if (oldLocations === null || oldLocations.length < 100) {
 		console.log("We're doing it the old-fashioned way.");
