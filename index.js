@@ -21,7 +21,7 @@ parameterTypes.sort();
 var userTab = document.getElementById("userTab");
 var loginTab = document.getElementById("loginNav");
 var managmentTab = document.getElementById("managmentNav");
-if (localStorage.getItem("name") !== null && localStorage.getItem("name") !== "") {
+if (localStorage.getItem("name") !== null || localStorage.getItem("name") !== "") {
 	//A user is logged in
 
 	loginTab.style.position = "absolute";
@@ -623,4 +623,3 @@ $(document).ready(function () {
 			parse(data);
 		}
 	});
-});
