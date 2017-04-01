@@ -1,0 +1,20 @@
+[
+	{
+		"name": "Ben Scholer",
+		"password": "test",
+		"agencyType": "TEST",
+		"email": "bscholer@purdue.edu",
+		"url": "https://github.com/Bobby2552",
+		"publiclyAvailible": false,
+		"admin": true
+	},
+	{
+		"name": "Larry Theller",
+		"password": "test",
+		"agencyType": "TEST",
+		"email": "theller@purdue.edu",
+		"url": "https://engineering.purdue.edu/ABE/people/ptProfile?resource_id=43121",
+		"publiclyAvailible": false,
+		"admin": true
+	}
+]

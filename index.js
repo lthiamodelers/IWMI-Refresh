@@ -21,15 +21,17 @@ parameterTypes.sort();
 var userTab = document.getElementById("userTab");
 var loginTab = document.getElementById("loginNav");
 var managmentTab = document.getElementById("managmentNav");
-if (localStorage.getItem("name") !== null || localStorage.getItem("name") !== "") {
+if (localStorage.getItem("name") !== null && localStorage.getItem("email")) {
+	console.log("The user is logged in.");
 	//A user is logged in
 
 	loginTab.style.position = "absolute";
 	loginTab.style.visibility = "hidden";
-	managmentTab.visibility = "visible";
+	managmentTab.visibility = "hidden";
 	userTab.visibility = "visible";
 	userTab.textContent = localStorage.getItem("name");
 } else {
+	console.log("The user isn't logged in.");
 	managmentTab.visibility = "hidden";
 	userTab.visibility = "hidden";
 }
@@ -623,3 +625,4 @@ $(document).ready(function () {
 			parse(data);
 		}
 	});
+});
