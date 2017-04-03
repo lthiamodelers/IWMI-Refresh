@@ -33,7 +33,7 @@ function signIn() {
 	}
 
 	if (localStorage.getItem("email")) {
-		window.location.replace("/IWMI/managment.html");
+		window.location.replace("/IWMI/management.html");
 
 	} else {
 		alert("Incorrect email/password");

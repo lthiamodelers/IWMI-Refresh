@@ -20,19 +20,19 @@ parameterTypes.sort();
 
 var userTab = document.getElementById("userTab");
 var loginTab = document.getElementById("loginNav");
-var managmentTab = document.getElementById("managmentNav");
+var managementTab = document.getElementById("managementNav");
 if (localStorage.getItem("name") !== null && localStorage.getItem("email")) {
 	console.log("The user is logged in.");
 	//A user is logged in
 
 	loginTab.style.position = "absolute";
 	loginTab.style.visibility = "hidden";
-	managmentTab.visibility = "hidden";
+	managementTab.visibility = "hidden";
 	userTab.visibility = "visible";
 	userTab.textContent = localStorage.getItem("name");
 } else {
 	console.log("The user isn't logged in.");
-	managmentTab.visibility = "hidden";
+	managementTab.visibility = "hidden";
 	userTab.visibility = "hidden";
 }
 
@@ -256,7 +256,7 @@ function myMap() {
 	// Add a marker clusterer to manage the markers.
 	cluster = new MarkerClusterer(map, markers, {
 		imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-		maxZoom: 15 //An arbitrary value that seems to work well.
+		maxZoom: 12 //A good zoom level to act as a maximum zoom to decluster the points
 	});
 
 	populateAgencyType();
