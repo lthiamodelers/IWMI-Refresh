@@ -325,61 +325,96 @@ function populateParameterTypes() {
 function filterHUC() {
 	var huc = document.getElementById("hucSearch");
 
-
 	var bounds = new google.maps.LatLngBounds();
 	cluster.clearMarkers();
 	cluster = null;
 	markers = [];
 
-
-	if (huc.value.length == 7) {
+	if (huc.value.length == 8) {
 		//Use HUC8
 		locations.forEach(function (loc) {
-			if (loc.huc8 === huc.value) {
+			if ("0" + loc.huc8 === "" + huc.value) {
 				loc.marker.setVisible(true);
 				markers.push(loc.marker);
 				bounds.extend(loc.marker.position);
 			}
 		});
-	} else if (huc.value.length == 9) {
+		console.log(markers);
+	} else if (huc.value.length == 10) {
 		//Use HUC10
 		locations.forEach(function (loc) {
-			if ((loc.huc10 + "") === (huc.value + "")) {
+			if ("0" + loc.huc10 === "" + huc.value) {
 				loc.marker.setVisible(true);
 				markers.push(loc.marker);
 				bounds.extend(loc.marker.position);
 			}
 		});
-	} else if (huc.value.length == 11) {
+	} else if (huc.value.length == 12) {
 		//Use HUC12
 		locations.forEach(function (loc) {
-			if (loc.huc12 === huc.value) {
+			if ("0" + loc.huc12 === "" + huc.value) {
 				loc.marker.setVisible(true);
 				markers.push(loc.marker);
 				bounds.extend(loc.marker.position);
 			}
 		});
-	} else {
+	} else if (huc.value.length == 0){
 		locations.forEach(function (loc) {
 			loc.marker.setVisible(true);
 			markers.push(loc.marker);
 		});
+		var div = document.getElementById("hucForm"); 		
+		removeClass(div, "has-error");
 	}
 
 	cluster = new MarkerClusterer(map, markers, {
 		imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-		maxZoom: 15 //An arbitrary value that seems to work well.
+		maxZoom: 12 //An arbitrary value that seems to work well.
 	});
 
-	if (huc.value.length == 7 || huc.value.length == 9 || huc.value.length == 11) {
+	if (huc.value.length == 8 || huc.value.length == 10 || huc.value.length == 12) {
 		map.fitBounds(bounds);
 		if (map.getZoom() > 13) {
 			map.setZoom(13);
 		}
+		var div = document.getElementById("hucForm"); 		
+		removeClass(div, "has-error");
 
-	} else {
+	} else if (markers.length == 0) {
 		map.setCenter(center);
 		map.setZoom(7);
+		if (huc.value.length >= 7) {
+			var div = document.getElementById("hucForm"); 		
+			addClass(div, "has-error");
+		}
+	}
+	if (markers.length === 0) {
+		map.setCenter(center);
+		map.setZoom(7);
+		var div = document.getElementById("hucForm"); 		
+		addClass(div, "has-error");
+	}
+}
+
+function hasClass(el, className) {
+	if (el.classList)
+		return el.classList.contains(className)
+	else
+		return !!el.className.match(new RegExp('(\\s|^)' + className + '(\\s|$)'))
+}
+
+function addClass(el, className) {
+	if (el.classList)
+		el.classList.add(className)
+	else if (!hasClass(el, className)) el.className += " " + className
+}
+
+function removeClass(el, className) {
+	if (el.classList)
+		el.classList.remove(className)
+	else if (hasClass(el, className)) {
+		var reg = new RegExp('(\\s|^)' + className + '(\\s|$)')
+		el.className=el.className.replace(reg, ' ')
 	}
 }
 
