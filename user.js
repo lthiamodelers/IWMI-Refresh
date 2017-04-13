@@ -25,13 +25,14 @@ function parseLocations(data) {
 	//locations = JSON.parse(data);
 }
 
-function logout() {
-	localStorage.removeItem("email");
-	localStorage.removeItem("name");
-	window.location.replace("/IWMI/index.html");
+function logOut() {
+	console.log("I'm getting called");
+	localStorage.setItem("email", null);
+	localStorage.setItem("name", null);
+	//window.location.replace("/IWMI/index.html");
 }
 
-document.getElementById("logout").addEventListener("click", logout);
+document.getElementById("logout").addEventListener("click", logOut);
 
 $(document).ready(function () {
 	$.ajax({

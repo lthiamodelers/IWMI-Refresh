@@ -112,7 +112,7 @@ function addAgencyType(loc) {
 		//Check if agencyNames has type in it.
 		if (agencyNames[i][0] === loc.type) {
 			//Is the name of the agency already in the array?
-			if (agencyNames[i].indexOf(loc.organization) == -1) {
+			if (agencyNames[i].indexOf(loc.organization) === -1) {
 				//Append the name of the agency to the array, if it isn't in there already.
 				agencyNames[i].push(loc.organization);
 			}
@@ -312,7 +312,15 @@ function searchCity() {
 
 function populateParameterTypes() {
 	var select = document.getElementById("parameterSelect");
+	var datasetSelect = document.getElementById("datasetSelect");
+
 	if (select.getElementsByTagName("option").length < 3) {
+
+		//If a dataset name is selected, only populate the select element with that dataset name's possible parameter types.
+		if (datasetSelect.value !== "Select Dataset Name" && datasetSelect.value !== "Show all") {
+
+		}
+		else
 		parameterTypes.forEach(function (type) {
 			var el = document.createElement("option");
 			el.textContent = type;
@@ -471,6 +479,8 @@ function populateDatasetName() {
 function filterDatasetNames() {
 	var select = document.getElementById("datasetSelect");
 	var val = select.value;
+
+	populateParameterTypes();
 
 	if (val !== "Select Dataset Name") {
 		var bounds = new google.maps.LatLngBounds();
