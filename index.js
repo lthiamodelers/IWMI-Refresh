@@ -22,7 +22,6 @@ var userTab = document.getElementById("userTab");
 var loginTab = document.getElementById("loginNav");
 var managementTab = document.getElementById("managementNav");
 if (localStorage.getItem("name") !== null && localStorage.getItem("email")) {
-    console.log("The user is logged in.");
     //A user is logged in
 
     loginTab.style.position = "absolute";
@@ -31,7 +30,6 @@ if (localStorage.getItem("name") !== null && localStorage.getItem("email")) {
     userTab.visibility = "visible";
     userTab.textContent = localStorage.getItem("name");
 } else {
-    console.log("The user isn't logged in.");
     managementTab.visibility = "hidden";
     userTab.visibility = "hidden";
 }
@@ -177,7 +175,6 @@ function parse(text) {
         locations.push(newLoc);
     }
     myMap();
-    console.log(locations);
 }
 
 function myMap() {
@@ -320,33 +317,39 @@ function populateParameterTypes() {
     var datasetSelect = document.getElementById("datasetSelect");
 
     removeOptions(select);
-    console.log(select.options);
 
+    //Add in all the possible ones to all
     var all = [];
     //If a dataset name is selected, only populate the select element with that dataset name's possible parameter types.
     var val = datasetSelect.value;
     locations.forEach(function (loc) {
-        if ((loc.name === val || val === "Show all") && loc.parameterType !== null) {
+        if ((loc.name === val) && loc.parameterType !== null) {
             var pars = loc.parameterType.split(", ");
-            all.concat(pars)
+            pars.forEach(function (par) {
+                all.push(par);
+            });
         }
     });
 
+    //Delete duplicates, and sort
     all = all.filter(function (item, index, inputArray) {
         return inputArray.indexOf(item) === index;
     });
     all.sort();
 
+    //Add Select Parameter Type to the top
     var el = document.createElement("option");
     el.textContent = "Select Parameter Type";
     el.value = "Select Parameter Type";
     select.appendChild(el);
 
+    //Add Show all
     var el = document.createElement("option");
     el.textContent = "Show all";
     el.value = "Show all";
     select.appendChild(el);
 
+    //Stick the types in all into the select as options
     for (var i = 0; i < all.length; i++) {
         var el = document.createElement("option");
         el.textContent = all[i];
@@ -372,7 +375,6 @@ function filterHUC() {
                 bounds.extend(loc.marker.position);
             }
         });
-        console.log(markers);
     } else if (huc.value.length === 10) {
         //Use HUC10
         locations.forEach(function (loc) {
@@ -471,6 +473,7 @@ function filterParameterTypes() {
 
         locations.forEach(function (loc) {
             if (loc.parameterType !== null && loc.name === datasetSelect.value) {
+                //Add all of the locations for the given dataset name to the map
                 if (val === "Show all") {
 
                     loc.marker.setVisible(true);
@@ -488,6 +491,9 @@ function filterParameterTypes() {
         });
 
         map.fitBounds(bounds);
+        if (map.getZoom() > 13) {
+            map.setZoom(13);
+        }
 
         cluster = new MarkerClusterer(map, markers, {
             imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
@@ -512,7 +518,6 @@ function filterDatasetNames() {
     var parSelect = document.getElementById("parameterSelect");
     var val = select.value;
 
-    console.log("I got here");
 
     if (val !== "Select Dataset Name") {
         parSelect.disabled = false;
@@ -526,7 +531,6 @@ function filterDatasetNames() {
         locations.forEach(function (loc) {
 
             if (val === "Show all") {
-
                 loc.marker.setVisible(true);
                 markers.push(loc.marker);
             } else if (loc.name === val) {
