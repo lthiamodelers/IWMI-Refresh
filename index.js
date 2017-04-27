@@ -514,6 +514,13 @@ function populateDatasetName() {
 }
 
 function filterDatasetNames() {
+    var agencySelect = document.getElementById("agencySelect");
+    var agencyTypeSelect = document.getElementById("agencyTypeSelect");
+
+    agencySelect.value = "Select Agency";
+    agencyTypeSelect.value = "Select Agency Type";
+    agencySelect.disabled = true;
+
     var select = document.getElementById("datasetSelect");
     var parSelect = document.getElementById("parameterSelect");
     var val = select.value;
@@ -561,6 +568,13 @@ function filterDatasetNames() {
 }
 
 function filterAgencyTypes() {
+    var dataSelect = document.getElementById("datasetSelect");
+    var parSelect = document.getElementById("parameterSelect");
+
+    dataSelect.value = "Select Dataset Name";
+    parSelect.value = "Select Parameter Type";
+    parSelect.disabled = true;
+
     var select = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
     var val = select.value;
