@@ -18,22 +18,6 @@ var center = {
 
 parameterTypes.sort();
 
-var userTab = document.getElementById("userTab");
-var loginTab = document.getElementById("loginNav");
-var managementTab = document.getElementById("managementNav");
-if (localStorage.getItem("name") !== null && localStorage.getItem("email")) {
-    //A user is logged in
-
-    loginTab.style.position = "absolute";
-    loginTab.style.visibility = "hidden";
-    managementTab.visibility = "hidden";
-    userTab.visibility = "visible";
-    userTab.textContent = localStorage.getItem("name");
-} else {
-    managementTab.visibility = "hidden";
-    userTab.visibility = "hidden";
-}
-
 function Location(oldLocation, marker) {
     this.oldLocation = oldLocation;
     this.FID = oldLocation.FID;

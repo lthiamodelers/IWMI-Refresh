@@ -1,9 +1,0 @@
-thead {
-	display: block;
-	overflow-x: auto;
-}
-
-#loginNav {
-	position: absolute;
-	visibility: hidden;
-}
