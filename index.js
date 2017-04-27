@@ -152,46 +152,32 @@ function addDatasetName(loc) {
 //		}
 
 function parse(text) {
-    oldLocations = JSON.parse(localStorage.getItem("locations"));
-    if (oldLocations === null || oldLocations.length < 100) {
+    var jsonVersion = JSON.parse(text);
+    var data = jsonVersion.rows;
+    for (var i = 0; i < data.length; i++) {
+        var a = data[i];
 
-        var data = Papa.parse(text);
-        for (var i = 1; i < data.data.length; i++) {
-            var a = data.data[i];
+        var loc = new BasicLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
+            a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
 
-            var loc = new BasicLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
-                a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
+        var lat = parseFloat(loc.lat);
+        var lng = parseFloat(loc.lng);
+        var name = loc.name;
 
-            var lat = parseFloat(loc.lat);
-            var lng = parseFloat(loc.lng);
-            var name = loc.name;
-
-            var marker = new google.maps.Marker({
-                position: {
-                    lat: parseFloat(loc.lat),
-                    lng: parseFloat(loc.lng)
-                },
-                title: loc.name
-            });
-
-            var newLoc = new Location(loc, marker);
-
-            locations.push(newLoc);
-        }
-    } else {
-        oldLocations.forEach(function (loc) {
-            var marker = new google.maps.Marker({
-                position: {
-                    lat: parseFloat(loc.lat),
-                    lng: parseFloat(loc.lng)
-                },
-                title: loc.name
-            });
-            var newLoc = new Location(loc, marker);
-            locations.push(newLoc);
+        var marker = new google.maps.Marker({
+            position: {
+                lat: parseFloat(loc.lat),
+                lng: parseFloat(loc.lng)
+            },
+            title: loc.name
         });
+
+        var newLoc = new Location(loc, marker);
+
+        locations.push(newLoc);
     }
     myMap();
+    console.log(locations);
 }
 
 function myMap() {
@@ -716,8 +702,8 @@ document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 //Load in the csv, and call myMap with it.
 $(document).ready(function () {
     $.ajax({
-        type: "GET",
-        url: "res/inwater.csv",
+        type: "POST",
+        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%201urVQf1MWtRf2XavqoR9a6l_CsdE7IVdpNVNTbNrp&pli&key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw",
         dataType: "text",
         success: function (data) {
             parse(data);
