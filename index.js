@@ -322,44 +322,51 @@ Array.prototype.unique = function () {
     return a;
 };
 
+function removeOptions(selectbox) {
+    var i;
+    for (i = selectbox.options.length - 1; i >= 0; i--) {
+        selectbox.remove(i);
+    }
+}
+
 function populateParameterTypes() {
     var select = document.getElementById("parameterSelect");
     var datasetSelect = document.getElementById("datasetSelect");
 
-    var length = select.options.length;
-    for (var i = 0; i < length; i++) {
-        select.options[i] = null;
-    }
+    removeOptions(select);
+    console.log(select.options);
 
     var all = [];
     //If a dataset name is selected, only populate the select element with that dataset name's possible parameter types.
-    if (datasetSelect.value !== "Select Dataset Name" && datasetSelect.value !== "Show all") {
-        var val = datasetSelect.value;
-        locations.forEach(function (loc) {
-            if (loc.name === val) {
-                var pars = loc.parameterType.split(", ");
-                all = all.concat(pars).unique();
-            }
-        });
-    }
-    else {
-        console.log("We're here...");
-        parameterTypes.forEach(function (type) {
-            all.push(type);
-        });
-    }
-
-    all = all.unique();
-    all.sort();
-    all.unshift("Select Parameter Type");
-    all.unshift("Show all");
-
-    all.forEach(function (type) {
-        var el = document.createElement("option");
-        el.textContent = type;
-        el.value = type;
-        select.appendChild(el);
+    var val = datasetSelect.value;
+    locations.forEach(function (loc) {
+        if ((loc.name === val || val === "Show all") && loc.parameterType !== null) {
+            var pars = loc.parameterType.split(", ");
+            all.concat(pars)
+        }
     });
+
+    all = all.filter(function (item, index, inputArray) {
+        return inputArray.indexOf(item) === index;
+    });
+    all.sort();
+
+    var el = document.createElement("option");
+    el.textContent = "Select Parameter Type";
+    el.value = "Select Parameter Type";
+    select.appendChild(el);
+
+    var el = document.createElement("option");
+    el.textContent = "Show all";
+    el.value = "Show all";
+    select.appendChild(el);
+
+    for (var i = 0; i < all.length; i++) {
+        var el = document.createElement("option");
+        el.textContent = all[i];
+        el.value = all[i];
+        select.appendChild(el);
+    }
 }
 
 function filterHUC() {
@@ -370,7 +377,7 @@ function filterHUC() {
     cluster = null;
     markers = [];
 
-    if (huc.value.length == 8) {
+    if (huc.value.length === 8) {
         //Use HUC8
         locations.forEach(function (loc) {
             if ("0" + loc.huc8 === "" + huc.value) {
@@ -380,7 +387,7 @@ function filterHUC() {
             }
         });
         console.log(markers);
-    } else if (huc.value.length == 10) {
+    } else if (huc.value.length === 10) {
         //Use HUC10
         locations.forEach(function (loc) {
             if ("0" + loc.huc10 === "" + huc.value) {
@@ -389,7 +396,7 @@ function filterHUC() {
                 bounds.extend(loc.marker.position);
             }
         });
-    } else if (huc.value.length == 12) {
+    } else if (huc.value.length === 12) {
         //Use HUC12
         locations.forEach(function (loc) {
             if ("0" + loc.huc12 === "" + huc.value) {
@@ -398,7 +405,7 @@ function filterHUC() {
                 bounds.extend(loc.marker.position);
             }
         });
-    } else if (huc.value.length == 0) {
+    } else if (huc.value.length === 0) {
         locations.forEach(function (loc) {
             loc.marker.setVisible(true);
             markers.push(loc.marker);
@@ -412,7 +419,7 @@ function filterHUC() {
         maxZoom: 12 //An arbitrary value that seems to work well.
     });
 
-    if (huc.value.length == 8 || huc.value.length == 10 || huc.value.length == 12) {
+    if (huc.value.length === 8 || huc.value.length === 10 || huc.value.length === 12) {
         map.fitBounds(bounds);
         if (map.getZoom() > 13) {
             map.setZoom(13);
@@ -420,7 +427,7 @@ function filterHUC() {
         var div = document.getElementById("hucForm");
         removeClass(div, "has-error");
 
-    } else if (markers.length == 0) {
+    } else if (markers.length === 0) {
         map.setCenter(center);
         map.setZoom(7);
         if (huc.value.length >= 7) {
@@ -458,8 +465,8 @@ function removeClass(el, className) {
     }
 }
 
-google.maps.Map.prototype.clearOverlays = function() {
-    for (var i = 0; i < markers.length; i++ ) {
+google.maps.Map.prototype.clearOverlays = function () {
+    for (var i = 0; i < markers.length; i++) {
         markers[i].setMap(null);
     }
     markers.length = 0;
@@ -467,6 +474,7 @@ google.maps.Map.prototype.clearOverlays = function() {
 
 function filterParameterTypes() {
     var select = document.getElementById("parameterSelect");
+    var datasetSelect = document.getElementById("datasetSelect");
     var val = select.value;
 
     if (val !== "Select Parameter Type") {
@@ -476,11 +484,12 @@ function filterParameterTypes() {
         markers = [];
 
         locations.forEach(function (loc) {
-            if (loc.parameterType !== null) {
+            if (loc.parameterType !== null && loc.name === datasetSelect.value) {
                 if (val === "Show all") {
 
                     loc.marker.setVisible(true);
                     markers.push(loc.marker);
+                    bounds.extend(loc.marker.position);
 
                     //Search to see if parameterType contains val.
                 } else if (loc.parameterType.split(", ").indexOf(val) !== -1 && loc.parameterType !== undefined) {
@@ -492,17 +501,13 @@ function filterParameterTypes() {
             }
         });
 
+        map.fitBounds(bounds);
+
         cluster = new MarkerClusterer(map, markers, {
             imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
             maxZoom: 15 //An arbitrary value that seems to work well.
         });
 
-        if (val !== "Show all") {
-            map.fitBounds(bounds);
-            if (map.getZoom() > 13) {
-                map.setZoom(13);
-            }
-        }
     }
 }
 
@@ -518,13 +523,14 @@ function populateDatasetName() {
 
 function filterDatasetNames() {
     var select = document.getElementById("datasetSelect");
+    var parSelect = document.getElementById("parameterSelect");
     var val = select.value;
 
     console.log("I got here");
 
-    populateParameterTypes();
-
     if (val !== "Select Dataset Name") {
+        parSelect.disabled = false;
+        populateParameterTypes();
         var bounds = new google.maps.LatLngBounds();
 
         cluster.clearMarkers();
@@ -555,7 +561,12 @@ function filterDatasetNames() {
             if (map.getZoom() > 13) {
                 map.setZoom(13);
             }
+        } else {
+            map.setCenter(center);
+            map.setZoom(7);
         }
+    } else {
+        parSelect.disabled = true;
     }
 }
 
