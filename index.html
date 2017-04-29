@@ -4,83 +4,101 @@
 <html>
 
 <head>
-	<meta name="viewport" content="width = device-width, initial-scale = 1">
-	<link rel="stylesheet" type="text/css"
-		  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
-	<link rel="stylesheet" type="text/css" href="index.css"/>
-	<link rel="stylesheet" type="text/css" href="common.css">
-	<title>IWMI</title>
+    <meta name="viewport" content="width = device-width, initial-scale = 1">
+    <link rel="stylesheet" type="text/css"
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
+    <link rel="stylesheet" type="text/css" href="index.css"/>
+    <link rel="stylesheet" type="text/css" href="common.css">
+    <title>IWMI</title>
 </head>
 
 <body>
-	<!-- Fork me on GitHub banner -->
-	<a href="https://github.com/lthiamodelers/IWMI-Refresh"><img id="forkMe"
-																 src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
-																 alt="Fork me on GitHub"
-																 data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+<!-- Fork me on GitHub banner -->
+<a href="https://github.com/lthiamodelers/IWMI-Refresh"><img id="forkMe"
+                                                             src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+                                                             alt="Fork me on GitHub"
+                                                             data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
 
-	<div class="container">
-		<nav class="navbar navbar-default">
-			<div class="container-fluid">
-				<div class="navbar-header"><a class="navbar-brand" href="IWMI/index.html">Indiana Water Monitoring Inventory</a></div>
-			</div>
-		</nav>
-		<div id="parent">
-			<div id="map"></div>
-			<div id="searchTools" class="container">
-				<h2 id="searchToolsHeader" style="margin-left: 35%">Search Tools</h2>
-				<div class="form-group">
-					<input type="text" class="form-control" id="city" placeholder="City">
-				</div>
-				<hr/>
-				<div class="form-group">
-					<select id="agencyTypeSelect" class="form-control" style="margin-bottom: 10px;">
-						<option>Select Agency Type</option>
-						<option>Show all</option>
-					</select>
-					<select id="agencySelect" class="form-control" disabled>
-						<option>Select Agency</option>
-						<option>Show all</option>
-					</select>
-				</div>
-				<hr/>
-				<div class="form-group">
-					<select id="datasetSelect" class="form-control">
-						<option>Select Dataset Name</option>
-						<option>Show all</option>
-					</select>
-				</div>
-				<div class="form-group">
-					<select id="parameterSelect" disabled class="form-control">
-						<option>Select Parameter Type</option>
-						<option>Show all</option>
-					</select>
-				</div>
-				<hr/>
-				<div id="hucForm" class="form-group">
-						<input type="number" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12">
-				</div>
-				<div>e.g. 051401010203</div>
-                <hr/>
-				<div><b>This site works best in Chrome, Firefox, and Edge.</b></div>
-			</div>
+<div class="container">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header"><a class="navbar-brand" href="IWMI/index.html">Indiana Water Monitoring
+                Inventory</a></div>
+        </div>
+    </nav>
+    <div id="parent">
+        <div id="map"></div>
+        <div id="searchTools" class="container">
+            <h2 id="searchToolsHeader" style="margin-left: 35%">Search Tools</h2>
+            <div class="form-group">
+                <input type="text" class="form-control" id="city" placeholder="City">
+            </div>
+            <hr/>
+            <div class="form-group">
+                <select id="agencyTypeSelect" class="form-control" style="margin-bottom: 10px;">
+                    <option>Select Agency Type</option>
+                    <option>Show all</option>
+                </select>
+                <select id="agencySelect" class="form-control" disabled>
+                    <option>Select Agency</option>
+                    <option>Show all</option>
+                </select>
+            </div>
+            <hr/>
+            <div class="form-group">
+                <select id="datasetSelect" class="form-control">
+                    <option>Select Dataset Name</option>
+                    <option>Show all</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="parameterSelect" disabled class="form-control">
+                    <option>Select Parameter Type</option>
+                    <option>Show all</option>
+                </select>
+            </div>
+            <hr/>
+            <div id="hucForm" class="form-group">
+                <input type="number" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12">
+            </div>
+            <div>e.g. 051401010203</div>
+            <hr/>
+            <div><b>This site works best in Chrome, Firefox, and Edge.</b></div>
+        </div>
 
-		</div>
-		<p id="disclaimer">This project has been funded wholly or in part by the United States Environmental Protection
-			Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The
-			contents of this document do not necessarily reflect the views and policies of the Environmental Protection
-			Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for
-			use. Read more information on the Indiana Department of Environmental Management's <a
-					href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a
-					href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
-	</div>
+    </div>
+    <p id="disclaimer">This project has been funded wholly or in part by the United States Environmental Protection
+        Agency under assistance agreement C997548210 to the Indiana Department of Environmental Management. The
+        contents of this document do not necessarily reflect the views and policies of the Environmental Protection
+        Agency, nor does mention of trade names or commercial products constitute endorsement or recommendation for
+        use. Read more information on the Indiana Department of Environmental Management's <a
+                href="http://www.in.gov/idem/nps/3464.htm">watershed planning</a> and their <a
+                href="http://www.in.gov/idem/nps/3378.htm">Section 319 Nonpoint Source Grant Program</a>.</p>
+</div>
 
-	<script src="lib/papaparse.js"></script>
-	<script src="lib/markerclusterer.js"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw&callback=myMap"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="index.js"></script>
+<script src="lib/papaparse.js"></script>
+<script src="lib/markerclusterer.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw&callback=myMap"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="index.js"></script>
+<script type="text/javascript">
+    <!--
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    -->
+</script>
+
+<script type="text/javascript">
+    <!--
+    try {
+        var pageTracker = _gat._getTracker("UA-9447789-10");
+        pageTracker._trackPageview();
+    }
+    catch (err) {
+    }
+    -->
+</script>
 </body>
 
 </html>
