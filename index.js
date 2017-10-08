@@ -19,7 +19,6 @@ var center = {
 parameterTypes.sort();
 
 function Location(oldLocation, marker) {
-    this.oldLocation = oldLocation;
     this.FID = oldLocation.FID;
     this.GID = oldLocation.GID;
     this.type = oldLocation.type;
@@ -72,6 +71,7 @@ function BasicLocation(FID, GID, type, organization, name, siteNo, description, 
 
 function populateAgencyType() {
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
+
     for (var i = 0; i < agencyTypes.length - 1; i++) {
         var type = agencyTypes[i];
         var el = document.createElement("option");
@@ -157,7 +157,13 @@ function parse(text) {
         var newLoc = new Location(loc, marker);
 
         locations.push(newLoc);
+
+
     }
+    var searched = alasql('SELECT * FROM ? WHERE FID=\'1\'', [locations]);
+
+    console.log("Printing searched");
+    console.log(searched);
     myMap();
 }
 
@@ -577,20 +583,19 @@ function filterAgencyTypes() {
             cluster.clearMarkers();
             cluster = null;
             markers = [];
+            var sqlReturn = [];
 
-            locations.forEach(function (loc) {
+            if (val === "Show all") {
+                sqlReturn = alasql('SELECT * FROM ?', [locations]);
+            } else {
+                sqlReturn = alasql('SELECT * FROM ? WHERE type=\'' + val + '\'', [locations])
+            }
 
-                if (val === "Show all") {
+            console.log(sqlReturn);
 
+            sqlReturn.forEach(function (loc) {
                     loc.marker.setVisible(true);
                     markers.push(loc.marker);
-
-                } else if (loc.type === val) {
-
-                    loc.marker.setVisible(true);
-                    markers.push(loc.marker);
-                    bounds.extend(loc.marker.position);
-                }
             });
 
             cluster = new MarkerClusterer(map, markers, {
