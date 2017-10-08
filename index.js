@@ -223,7 +223,7 @@ function myMap() {
     // Add a marker clusterer to manage the markers.
     cluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-        maxZoom: 12 //A good zoom level to act as a maximum zoom to decluster the points
+        maxZoom: 9 //A good zoom level to act as a maximum zoom to decluster the points
     });
 
     populateAgencyType();
