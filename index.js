@@ -15,6 +15,7 @@ var center = {
     lat: 39.7684,
     lng: -86.1581
 };
+var declusterZoom = 9;
 
 parameterTypes.sort();
 
@@ -229,7 +230,7 @@ function myMap() {
     // Add a marker clusterer to manage the markers.
     cluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-        maxZoom: 9 //A good zoom level to act as a maximum zoom to decluster the points
+        maxZoom: declusterZoom //A good zoom level to act as a maximum zoom to decluster the points
     });
 
     populateAgencyType();
@@ -394,7 +395,7 @@ function filterHUC() {
 
     cluster = new MarkerClusterer(map, markers, {
         imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-        maxZoom: 12 //An arbitrary value that seems to work well.
+        maxZoom: declusterZoom //An arbitrary value that seems to work well.
     });
 
     if (huc.value.length === 8 || huc.value.length === 10 || huc.value.length === 12) {
@@ -487,7 +488,7 @@ function filterParameterTypes() {
 
         cluster = new MarkerClusterer(map, markers, {
             imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-            maxZoom: 15 //An arbitrary value that seems to work well.
+            maxZoom: declusterZoom //An arbitrary value that seems to work well.
         });
 
     }
@@ -540,7 +541,7 @@ function filterDatasetNames() {
 
         cluster = new MarkerClusterer(map, markers, {
             imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-            maxZoom: 15 //An arbitrary value that seems to work well.
+            maxZoom: declusterZoom //An arbitrary value that seems to work well.
         });
 
         if (val !== "Show all") {
@@ -591,129 +592,116 @@ function filterAgencyTypes() {
                 sqlReturn = alasql('SELECT * FROM ? WHERE type=\'' + val + '\'', [locations])
             }
 
-            console.log(sqlReturn);
+            displayMarkers(markers);
 
-            sqlReturn.forEach(function (loc) {
-                    loc.marker.setVisible(true);
-                    markers.push(loc.marker);
-            });
+        } else {
+            agencySelect.disabled = true;
+        }
 
-            cluster = new MarkerClusterer(map, markers, {
-                imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-                maxZoom: 15 //An arbitrary value that seems to work well.
-            });
+        if (val === "Show all") {
+            agencySelect.disabled = true;
+        }
+        oldType = val;
+    }
 
-            if (val !== "Show all") {
-                map.fitBounds(bounds);
-                if (map.getZoom() > 13) {
-                    map.setZoom(13);
-                }
+    function filterAgencies() {
+
+        var typeSelect = document.getElementById("agencyTypeSelect");
+        var select = document.getElementById("agencySelect");
+        var val = select.value;
+        var bounds = new google.maps.LatLngBounds();
+
+        if (val !== "Select Agency") {
+
+            cluster.clearMarkers();
+            cluster = null;
+            markers = [];
+            var sqlReturn = [];
+
+            if (val === "Show all") {
+                sqlReturn = alasql('SELECT marker FROM ? WHERE type=\'' + typeSelect.value + '\'', [locations]);
+            } else {
+                sqlReturn = alasql('SELECT marker FROM ? WHERE type=\'' + typeSelect.value + '\' AND organization=\'' + val + '\'');
             }
 
+            sqlReturn.forEach(function (loc) {
+                markers.push(loc.marker);
+            });
 
+            displayMarkers(markers);
         }
-        if (val !== "Show all") {
-            populateAgencies(val);
+    }
+
+    function populateAgencies(type) {
+        var agencySelect = document.getElementById("agencySelect");
+
+        for (var i = 2; i < agencySelect.options.length; i++) {
+
+            agencySelect.options[i] = null;
+        }
+
+        agencyNames.forEach(function (name) {
+            if (type === "Show all") {
+                for (i = 1; i < name.length; i++) {
+                    var el = document.createElement("option");
+                    el.textContent = name[i];
+                    el.value = name[i];
+                    agencySelect.appendChild(el);
+                }
+            } else if (name[0] === type) {
+                for (i = 1; i < name.length; i++) {
+                    var el = document.createElement("option");
+                    el.textContent = name[i];
+                    el.value = name[i];
+                    agencySelect.appendChild(el);
+                }
+            }
+        });
+        agencySelect.disabled = false;
+    }
+
+
+    function displayMarkers(markers) {
+        var bounds = new google.maps.LatLngBounds();
+        if (markers.length < 2000) {
+            markers.forEach(function (loc) {
+                bounds.extend(loc.marker.position);
+            });
+        }
+
+        cluster = new MarkerClusterer(map, markers, {
+            imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+            maxZoom: declusterZoom //An arbitrary value that seems to work well.
+        });
+
+        if (markers.length < 2000) {
+            map.fitBounds(bounds);
+            if (map.getZoom() > 13) {
+                map.setZoom(13);
+            }
         } else {
             map.setCenter(center);
             map.setZoom(7);
         }
-    } else {
-        agencySelect.disabled = true;
     }
 
-    if (val === "Show all") {
-        agencySelect.disabled = true;
-    }
-    oldType = val;
-}
 
-function filterAgencies() {
-
-    var typeSelect = document.getElementById("agencyTypeSelect");
-    var select = document.getElementById("agencySelect");
-    var val = select.value;
-    var bounds = new google.maps.LatLngBounds();
-
-    if (val !== "Select Agency") {
-
-        cluster.clearMarkers();
-        cluster = null;
-        markers = [];
-
-        locations.forEach(function (loc) {
-
-            if (loc.type === typeSelect.value && loc.organization === val) {
-
-                loc.marker.setVisible(true);
-                markers.push(loc.marker);
-            } else if (val === "Show all") {
-                if (loc.type === typeSelect.value) {
-                    loc.marker.setVisible(true);
-                    markers.push(loc.marker);
-                }
-            }
-        });
-
-        markers.forEach(function (mark) {
-            bounds.extend(mark.position);
-        });
-
-        cluster = new MarkerClusterer(map, markers, {
-            imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-            maxZoom: 15 //An arbitrary value that seems to work well.
-        });
-
-        map.fitBounds(bounds);
-        if (map.getZoom() > 13) {
-            map.setZoom(13);
-        }
-    }
-}
-
-function populateAgencies(type) {
-    var agencySelect = document.getElementById("agencySelect");
-
-    for (var i = 2; i < agencySelect.options.length; i++) {
-
-        agencySelect.options[i] = null;
-    }
-
-    agencyNames.forEach(function (name) {
-        if (type === "Show all") {
-            for (i = 1; i < name.length; i++) {
-                var el = document.createElement("option");
-                el.textContent = name[i];
-                el.value = name[i];
-                agencySelect.appendChild(el);
-            }
-        } else if (name[0] === type) {
-            for (i = 1; i < name.length; i++) {
-                var el = document.createElement("option");
-                el.textContent = name[i];
-                el.value = name[i];
-                agencySelect.appendChild(el);
-            }
-        }
-    });
-    agencySelect.disabled = false;
-}
-
-document.getElementById("city").addEventListener("keyup", searchCity);
-document.getElementById("agencyTypeSelect").addEventListener("click", filterAgencyTypes);
-document.getElementById("agencySelect").addEventListener("click", filterAgencies);
-document.getElementById("datasetSelect").addEventListener("click", filterDatasetNames);
-document.getElementById("parameterSelect").addEventListener("click", filterParameterTypes);
-document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
+    document.getElementById("city").addEventListener("keyup", searchCity);
+    document.getElementById("agencyTypeSelect").addEventListener("click", filterAgencyTypes);
+    document.getElementById("agencySelect").addEventListener("click", filterAgencies);
+    document.getElementById("datasetSelect").addEventListener("click", filterDatasetNames);
+    document.getElementById("parameterSelect").addEventListener("click", filterParameterTypes);
+    document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 //Load in the csv, and call myMap with it.
-$(document).ready(function () {
-    $.ajax({
-        type: "POST",
-        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%201urVQf1MWtRf2XavqoR9a6l_CsdE7IVdpNVNTbNrp&pli&key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw",
-        dataType: "text",
-        success: function (data) {
-            parse(data);
-        }
+    $(document).ready(function () {
+        $.ajax({
+            type: "POST",
+            url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%201urVQf1MWtRf2XavqoR9a6l_CsdE7IVdpNVNTbNrp&pli&key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw",
+            dataType: "text",
+            success: function (data) {
+                parse(data);
+            }
+        });
     });
-});
+}
