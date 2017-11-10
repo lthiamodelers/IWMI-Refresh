@@ -492,6 +492,7 @@ function filterDatasetNames() {
 }
 
 function filterAgencyTypes() {
+    console.log("I'm being called.");
     var dataSelect = document.getElementById("datasetSelect");
     var parSelect = document.getElementById("parameterSelect");
 
@@ -545,6 +546,15 @@ function filterAgencyTypes() {
     oldType = val;
 }
 
+function findAgencies(type) {
+    var tempAgencyNames = alasql('SELECT DISTINCT organization FROM ? WHERE type = \'' + type + '\'', [locations]);
+    for (var i = 0; i < tempAgencyNames.length; i++) {
+        agencyNames.push(tempAgencyNames[i].type);
+    }
+    agencyNames.sort();
+    populateAgencies();
+}
+
 function filterAgencies() {
 
     var typeSelect = document.getElementById("agencyTypeSelect");
@@ -553,6 +563,7 @@ function filterAgencies() {
     var bounds = new google.maps.LatLngBounds();
 
     if (val !== "Select Agency") {
+        findAgencies();
 
         cluster.clearMarkers();
         cluster = null;
@@ -561,13 +572,13 @@ function filterAgencies() {
         locations.forEach(function (loc) {
 
             if (loc.type === typeSelect.value && loc.organization === val) {
+                var marker = createMarker(loc);
 
-                loc.marker.setVisible(true);
-                markers.push(loc.marker);
+                markers.push(marker);
             } else if (val === "Show all") {
                 if (loc.type === typeSelect.value) {
-                    loc.marker.setVisible(true);
-                    markers.push(loc.marker);
+                    var marker = createMarker(loc);
+                    markers.push(marker);
                 }
             }
         });
