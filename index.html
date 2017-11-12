@@ -34,29 +34,22 @@
                 <input type="text" class="form-control" id="city" placeholder="City">
             </div>
             <hr/>
-            <div class="form-group">
-                <select id="agencyTypeSelect" class="form-control" style="margin-bottom: 10px;">
-                    <option>Select Agency Type</option>
-                    <option>Show all</option>
-                </select>
-                <select id="agencySelect" class="form-control" disabled>
-                    <option>Select Agency</option>
-                    <option>Show all</option>
-                </select>
-            </div>
-            <hr/>
-            <div class="form-group">
-                <select id="datasetSelect" class="form-control">
-                    <option>Select Dataset Name</option>
-                    <option>Show all</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <select id="parameterSelect" disabled class="form-control">
-                    <option>Select Parameter Type</option>
-                    <option>Show all</option>
-                </select>
-            </div>
+            <select id="agencyTypeSelect" class="form-control" style="margin-bottom: 10px;">
+                <option>Select Agency Type</option>
+                <option>Show all</option>
+            </select>
+            <select id="agencySelect" class="form-control">
+                <option>Select Agency</option>
+                <option>Show all</option>
+            </select>
+            <select id="datasetSelect" class="form-control">
+                <option>Select Dataset Name</option>
+                <option>Show all</option>
+            </select>
+            <select id="parameterSelect" class="form-control">
+                <option>Select Parameter Type</option>
+                <option>Show all</option>
+            </select>
             <hr/>
             <div id="hucForm" class="form-group">
                 <input type="number" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12">
@@ -87,8 +80,8 @@
     (function (i, s, o, g, r, a, m) {
         i['GoogleAnalyticsObject'] = r;
         i[r] = i[r] || function () {
-                (i[r].q = i[r].q || []).push(arguments)
-            }, i[r].l = 1 * new Date();
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date();
         a = s.createElement(o),
             m = s.getElementsByTagName(o)[0];
         a.async = 1;

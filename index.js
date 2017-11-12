@@ -1,15 +1,13 @@
-var infowindow;
 var map;
 var agencyNames = [];
 var agencyTypes = [];
 var datasetNames = [];
 var locations = [];
-var oldType = "Select Agency Type";
-var userLoggedIn;
-var users;
 var markers = [];
-//This variable needs to be assigned dynamically.
-var parameterTypes = ["Aquatic Plants/Algal Biomass", "Bacteriology/Microbiology", "Fish", "Flow/Stage", "General Chemistry", "Groundwater Level", "Groundwater Quality", "Habitat", "Lake Clarity", "Macroinvertebrates", "Metals", "Nutrients", "Organics/Pesticides", "Radiological", "Hoosier Riverwatch"];
+var agencySearch = "%";
+var agencyNameSearch = "%";
+var datasetNameSearch = "%";
+var parameterTypeSearch = "%";
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
     lat: 39.7684,
@@ -20,31 +18,12 @@ var cluster;
 
 parameterTypes.sort();
 
-function Location(oldLocation, marker) {
-    this.FID = oldLocation.FID;
-    this.GID = oldLocation.GID;
-    this.type = oldLocation.type;
-    this.organization = oldLocation.organization;
-    this.name = oldLocation.name;
-    this.siteNo = oldLocation.siteNo;
-    this.description = oldLocation.description;
-    this.parameterType = oldLocation.parameterType;
-    this.parameter = oldLocation.parameter;
-    this.frequency = oldLocation.frequency;
-    this.publiclyAvailible = oldLocation.publiclyAvailible;
-    this.startDate = oldLocation.startDate;
-    this.endDate = oldLocation.endDate;
-    this.contactURL = oldLocation.contactURL;
-    this.id = oldLocation.id;
-    this.quality = oldLocation.quality;
-    this.email = oldLocation.email;
-    this.huc8 = oldLocation.huc8;
-    this.huc10 = oldLocation.huc10;
-    this.huc12 = oldLocation.huc12;
-    this.lat = oldLocation.lat;
-    this.lng = oldLocation.lng;
-    this.marker = marker;
-}
+/*
+Agency Type = type
+Agency Name = organization
+Dataset Name = name
+Parameter Type = parameter
+ */
 
 function BasicLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, publiclyAvailible, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
     this.FID = FID;
@@ -71,40 +50,103 @@ function BasicLocation(FID, GID, type, organization, name, siteNo, description, 
     this.lng = lng;
 }
 
-function populateAgencyType() {
+//These variables should be string arrays
+function searchDistinct(locationList) {
+    var tempAgencyTypes = [], tempAgencyNames = [], tempDatasetNames = [], tempParameterTypes = [];
+    var agencyTypes = [], agencyNames = [], datasetNames = [], parameterTypes = [];
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
+    var agencySelect = document.getElementById("agencySelect");
+    var datasetSelect = document.getElementById("datasetSelect");
+    var parameterSelect = document.getElementById("parameterSelect");
 
-    for (var i = 0; i < agencyTypes.length - 1; i++) {
-        var type = agencyTypes[i];
-        var el = document.createElement("option");
-        el.textContent = type;
-        el.value = type;
-        agencyTypeSelect.appendChild(el);
-    }
-}
 
-function addAgencyType() {
-    var tempAgencyTypes = alasql('SELECT DISTINCT type FROM ?', [locations]);
+    tempAgencyTypes = alasql('SELECT DISTINCT type FROM ?', [locationList]);
     for (var i = 0; i < tempAgencyTypes.length; i++) {
         agencyTypes.push(tempAgencyTypes[i].type);
     }
     agencyTypes.sort();
-}
 
-function addDatasetName(loc) {
-    var tempDatasetNames = alasql('SELECT DISTINCT name FROM ?', [locations]);
+    tempAgencyNames = alasql('SELECT DISTINCT organization FROM ?', [locationList]);
+    for (var i = 0; i < tempAgencyNames.length; i++) {
+        agencyNames.push(tempAgencyNames[i].type);
+    }
+    agencyNames.sort();
+
+    tempDatasetNames = alasql('SELECT DISTINCT name FROM ?', [locationList]);
     for (var i = 0; i < tempDatasetNames.length; i++) {
         datasetNames.push(tempDatasetNames[i].name);
     }
     datasetNames.sort();
+
+    tempParameterTypes = alasql('SELECT DISTINCT parameter FROM ?', [locationList]);
+    for (var i = 0; i < tempParameterTypes.length; i++) {
+        parameterTypes.push(tempParameterTypes[i].name);
+    }
+    parameterTypes.sort();
+
+    populate(agencyTypeSelect, "Select Agency Type", agencyTypes);
+    populate(agencySelect, "Select Agency", agencyNames);
+    populate(datasetSelect, "Select Dataset Name", datasetNames);
+    populate(parameterSelect, "Select Parameter Type", parameterTypes);
+
 }
 
-//THIS NEEDS FIXED
-//		function addParameterType(loc) {
-//			if (!parameterTypes.includes(loc.parameter)) {
-//				parameterTypes.push(loc.parameter);
-//			}
-//		}
+function populate(select, firstDefault, list) {
+    //Add firstDefault to the top
+    var el = document.createElement("option");
+    el.textContent = firstDefault;
+    el.value = firstDefault;
+    select.appendChild(el);
+
+    //Add Show all
+    var el = document.createElement("option");
+    el.textContent = "Show all";
+    el.value = "Show all";
+    select.appendChild(el);
+
+    //Stick the types in all into the select as options
+    for (var i = 0; i < list.length; i++) {
+        var el = document.createElement("option");
+        el.textContent = list[i];
+        el.value = list[i];
+        select.appendChild(el);
+    }
+}
+
+function search() {
+    //Create variables for the search types.
+    var agencyTypeSelect = document.getElementById("agencyTypeSelect");
+    var agencySelect = document.getElementById("agencySelect");
+    var datasetSelect = document.getElementById("datasetSelect");
+    var parameterSelect = document.getElementById("parameterSelect");
+
+    var agencyType = agencyTypeSelect.value;
+    var agency = agencySelect.value;
+    var dataset = datasetSelect.value;
+    var parameter = parameterSelect.value;
+
+    if (agencyType === "Select Agency Type" || agencyType === "Show all") agencySearch = "%";
+    else agencySearch = agency;
+
+    if (agency === "Select Agency" || agency === "Show all") agencySearch = "%";
+    else agencyNameSearch = agency;
+
+    if (dataset === "Select Dataset Name" || dataset === "Show all") agencySearch = "%";
+    else datasetNameSearch = dataset;
+
+    if (parameter === "Select Parameter Type" || parameter === "Show all") parameterTypeSearch = "%";
+    else parameterTypeSearch = parameter;
+
+    var locationList = alasql(
+        'SELECT * FROM ?' +
+        'WHERE type LIKE \'' + agencyNameSearch + '\' ' +
+        'AND organization LIKE \'' + agencyNameSearch + '\' ' +
+        'AND name LIKE \'' + datasetNameSearch + '\' ' +
+        'AND parameter LIKE \'' + parameterTypeSearch + '\'', [locationList]);
+
+    displayMarkers(locationList);
+    searchDistinct(locationList);
+}
 
 function createMarker(loc) {
     var lat = parseFloat(loc.lat);
@@ -142,6 +184,27 @@ function createMarker(loc) {
     return marker;
 }
 
+function displayMarkers(locationList) {
+    var bounds = new google.maps.LatLngBounds();
+
+    locationList.forEach(function (loc) {
+        var marker = createMarker(loc);
+        markers.push(marker);
+        bounds.extend(marker.position);
+    });
+
+    if (markers.length < 1000) {
+        map.fitBounds(bounds);
+        if (map.getZoom() > 13) {
+            map.setZoom(13);
+        }
+    } else {
+        map.setCenter(center);
+        map.setZoom(7);
+    }
+}
+
+
 function parse(text) {
     var jsonVersion = JSON.parse(text);
     var data = jsonVersion.rows;
@@ -156,10 +219,11 @@ function parse(text) {
     myMap();
 }
 
+//Create the maps and stuff
 function myMap() {
 
 
-    //Create the map with refrence to the #map element.
+    //Create the map with reference to the #map element.
     var mapCanvas = document.getElementById("map");
     var mapOptions = {
         center: center,
@@ -398,7 +462,6 @@ function filterParameterTypes() {
     var val = select.value;
 
     if (val !== "Select Parameter Type") {
-        var bounds = new google.maps.LatLngBounds();
 
         map.clearOverlays();
         markers = [];
@@ -422,18 +485,9 @@ function filterParameterTypes() {
             }
         });
 
-        map.fitBounds(bounds);
-        if (map.getZoom() > 13) {
-            map.setZoom(13);
-        }
-
-        cluster = new MarkerClusterer(map, markers, {
-            imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
-            maxZoom: 15 //An arbitrary value that seems to work well.
-        });
-
     }
 }
+
 
 function populateDatasetName() {
     var datasetSelect = document.getElementById("datasetSelect");
@@ -628,10 +682,10 @@ function populateAgencies(type) {
 }
 
 document.getElementById("city").addEventListener("keyup", searchCity);
-document.getElementById("agencyTypeSelect").addEventListener("click", filterAgencyTypes);
-document.getElementById("agencySelect").addEventListener("click", filterAgencies);
-document.getElementById("datasetSelect").addEventListener("click", filterDatasetNames);
-document.getElementById("parameterSelect").addEventListener("click", filterParameterTypes);
+document.getElementById("agencyTypeSelect").addEventListener("click", search);
+document.getElementById("agencySelect").addEventListener("click", search);
+document.getElementById("datasetSelect").addEventListener("click", search);
+document.getElementById("parameterSelect").addEventListener("click", search);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 //Load in the csv, and call myMap with it.
