@@ -16,8 +16,6 @@ var center = {
 var declusterZoom = 9;
 var cluster;
 
-parameterTypes.sort();
-
 /*
 Agency Type = type
 Agency Name = organization
@@ -114,6 +112,8 @@ function populate(select, firstDefault, list) {
 }
 
 function search() {
+
+
     //Create variables for the search types.
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
@@ -138,11 +138,11 @@ function search() {
     else parameterTypeSearch = parameter;
 
     var locationList = alasql(
-        'SELECT * FROM ?' +
-        'WHERE type LIKE \'' + agencyNameSearch + '\' ' +
+        'SELECT * FROM ? ' +
+        'WHERE type LIKE \'' + agencySearch + '\' ' +
         'AND organization LIKE \'' + agencyNameSearch + '\' ' +
         'AND name LIKE \'' + datasetNameSearch + '\' ' +
-        'AND parameter LIKE \'' + parameterTypeSearch + '\'', [locationList]);
+        'AND parameter LIKE \'' + parameterTypeSearch + '\'', [locations]);
 
     displayMarkers(locationList);
     searchDistinct(locationList);
@@ -185,10 +185,14 @@ function createMarker(loc) {
 }
 
 function displayMarkers(locationList) {
+    map.clearOverlays();
     var bounds = new google.maps.LatLngBounds();
 
     locationList.forEach(function (loc) {
+        // var t0 = performance.now();
         var marker = createMarker(loc);
+        // var t1 = performance.now();
+        // console.log("It took " + (t1 - t0) + "ms");
         markers.push(marker);
         bounds.extend(marker.position);
     });
@@ -203,7 +207,6 @@ function displayMarkers(locationList) {
         map.setZoom(7);
     }
 }
-
 
 function parse(text) {
     var jsonVersion = JSON.parse(text);
@@ -234,19 +237,9 @@ function myMap() {
     var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
     map = new google.maps.Map(mapCanvas, mapOptions);
 
-    addAgencyType();
-    addDatasetName();
-    console.log("hello");
-
     for (var i = 0; i < locations.length; i++) {
         markers.push(createMarker(locations[i]));
     }
-
-    agencyTypes.sort();
-
-    populateAgencyType();
-    populateDatasetName();
-    populateParameterTypes();
 
     var items = JSON.parse(localStorage.getItem("locations"));
     if (items === null || items.length < 100) {
