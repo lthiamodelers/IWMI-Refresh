@@ -66,7 +66,7 @@ function searchDistinct(locationList) {
 
     tempAgencyNames = alasql('SELECT DISTINCT organization FROM ?', [locationList]);
     for (var i = 0; i < tempAgencyNames.length; i++) {
-        agencyNames.push(tempAgencyNames[i].type);
+        agencyNames.push(tempAgencyNames[i].organization);
     }
     agencyNames.sort();
 
@@ -78,7 +78,7 @@ function searchDistinct(locationList) {
 
     tempParameterTypes = alasql('SELECT DISTINCT parameter FROM ?', [locationList]);
     for (var i = 0; i < tempParameterTypes.length; i++) {
-        parameterTypes.push(tempParameterTypes[i].name);
+        parameterTypes.push(tempParameterTypes[i].parameter);
     }
     parameterTypes.sort();
 
@@ -90,6 +90,11 @@ function searchDistinct(locationList) {
 }
 
 function populate(select, firstDefault, list) {
+    for (var i = 0; i < select.options.length; i++) {
+        select.options[i] = null;
+    }
+    select.options.length = 0;
+
     //Add firstDefault to the top
     var el = document.createElement("option");
     el.textContent = firstDefault;
@@ -112,8 +117,6 @@ function populate(select, firstDefault, list) {
 }
 
 function search() {
-
-
     //Create variables for the search types.
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
@@ -125,24 +128,30 @@ function search() {
     var dataset = datasetSelect.value;
     var parameter = parameterSelect.value;
 
+    console.log(agencyType);
     if (agencyType === "Select Agency Type" || agencyType === "Show all") agencySearch = "%";
-    else agencySearch = agency;
+    else agencySearch = agencyType;
 
+    console.log(agency);
     if (agency === "Select Agency" || agency === "Show all") agencySearch = "%";
     else agencyNameSearch = agency;
 
+    console.log(dataset);
     if (dataset === "Select Dataset Name" || dataset === "Show all") agencySearch = "%";
     else datasetNameSearch = dataset;
 
+    console.log(parameter);
     if (parameter === "Select Parameter Type" || parameter === "Show all") parameterTypeSearch = "%";
     else parameterTypeSearch = parameter;
 
-    var locationList = alasql(
-        'SELECT * FROM ? ' +
-        'WHERE type LIKE \'' + agencySearch + '\' ' +
+    var query = 'SELECT * FROM ? WHERE type LIKE \'' + agencySearch + '\' ' +
         'AND organization LIKE \'' + agencyNameSearch + '\' ' +
         'AND name LIKE \'' + datasetNameSearch + '\' ' +
-        'AND parameter LIKE \'' + parameterTypeSearch + '\'', [locations]);
+        'AND parameter LIKE \'' + parameterTypeSearch + '\'';
+    var locationList = alasql(query, [locations]);
+
+    console.log("Location list length: " + locationList.length);
+    console.log("\nLocations length: " + locations.length);
 
     displayMarkers(locationList);
     searchDistinct(locationList);
@@ -185,6 +194,7 @@ function createMarker(loc) {
 }
 
 function displayMarkers(locationList) {
+    console.log("Markers length: " + markers.length);
     map.clearOverlays();
     var bounds = new google.maps.LatLngBounds();
 
@@ -219,13 +229,12 @@ function parse(text) {
 
         locations.push(loc);
     }
+    searchDistinct(locations);
     myMap();
 }
 
 //Create the maps and stuff
 function myMap() {
-
-
     //Create the map with reference to the #map element.
     var mapCanvas = document.getElementById("map");
     var mapOptions = {
@@ -240,16 +249,6 @@ function myMap() {
     for (var i = 0; i < locations.length; i++) {
         markers.push(createMarker(locations[i]));
     }
-
-    var items = JSON.parse(localStorage.getItem("locations"));
-    if (items === null || items.length < 100) {
-        var oldLocations = [];
-        locations.forEach(function (loc) {
-            oldLocations.push(loc.oldLocation);
-        });
-        localStorage.setItem("locations", JSON.stringify(oldLocations));
-    }
-
 }
 
 //click function for search
@@ -300,18 +299,10 @@ Array.prototype.unique = function () {
     return a;
 };
 
-function removeOptions(selectbox) {
-    var i;
-    for (i = selectbox.options.length - 1; i >= 0; i--) {
-        selectbox.remove(i);
-    }
-}
-
 function populateParameterTypes() {
     var select = document.getElementById("parameterSelect");
     var datasetSelect = document.getElementById("datasetSelect");
 
-    removeOptions(select);
 
     //Add in all the possible ones to all
     var all = [];
@@ -539,7 +530,6 @@ function filterDatasetNames() {
 }
 
 function filterAgencyTypes() {
-    console.log("I'm being called.");
     var dataSelect = document.getElementById("datasetSelect");
     var parSelect = document.getElementById("parameterSelect");
 
@@ -675,10 +665,10 @@ function populateAgencies(type) {
 }
 
 document.getElementById("city").addEventListener("keyup", searchCity);
-document.getElementById("agencyTypeSelect").addEventListener("click", search);
-document.getElementById("agencySelect").addEventListener("click", search);
-document.getElementById("datasetSelect").addEventListener("click", search);
-document.getElementById("parameterSelect").addEventListener("click", search);
+document.getElementById("agencyTypeSelect").addEventListener("change", search);
+document.getElementById("agencySelect").addEventListener("change", search);
+document.getElementById("datasetSelect").addEventListener("change", search);
+document.getElementById("parameterSelect").addEventListener("change", search);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 //Load in the csv, and call myMap with it.
