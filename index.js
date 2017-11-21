@@ -104,7 +104,6 @@ function searchDistinct(locationList) {
 
 function setOption(selectElement, value) {
     var options = selectElement.options;
-    console.log(options);
     for (var i = 0, optionsLength = options.length; i < optionsLength; i++) {
         if (options[i].value === value) {
             selectElement.selectedIndex = i;
