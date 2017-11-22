@@ -5,6 +5,7 @@ var agencySearch = "%";
 var agencyNameSearch = "%";
 var datasetNameSearch = "%";
 var parameterTypeSearch = "%";
+var nutrientSearch = "%";
 var resetFlag = false;
 var lastHUClength = 0;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
@@ -47,12 +48,13 @@ function BasicLocation(FID, GID, type, organization, name, siteNo, description, 
 
 //These variables should be string arrays
 function searchDistinct(locationList) {
-    var tempAgencyTypes = [], tempAgencyNames = [], tempDatasetNames = [], tempParameterTypes = [];
-    var agencyTypes = [], agencyNames = [], datasetNames = [], parameterTypes = [];
+    var tempAgencyTypes = [], tempAgencyNames = [], tempDatasetNames = [], tempParameterTypes = [], tempNutrients = [];
+    var agencyTypes = [], agencyNames = [], datasetNames = [], parameterTypes = [], nutrients = [];
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
     var datasetSelect = document.getElementById("datasetSelect");
     var parameterSelect = document.getElementById("parameterSelect");
+    var nutrientSelect = document.getElementById("nutrientSelect");
 
 
     tempAgencyTypes = alasql('SELECT DISTINCT type FROM ?', [locationList]);
@@ -95,10 +97,30 @@ function searchDistinct(locationList) {
     parameterTypes = uniq(allParameters);
     parameterTypes.sort();
 
+	//Check for Nitrogen
+	tempNutrients = alasql("SELECT FID FROM ? WHERE " +
+	"parameter LIKE '%nh4%' OR " +
+	"parameter LIKE '%no3%' OR " +
+	"parameter LIKE '%nitrogen%' OR " +
+	"parameter LIKE '%nitrate%' OR " +
+	"parameter LIKE '%nitrite%' OR " +
+	"parameter LIKE '%ammonia%' OR " +
+	"parameter LIKE '%parameters%'", [locationList]);
+	if (tempNutrients.length > 0) nutrients.push("Nitrogen, many forms");
+
+	//Check for Phosphorous
+	tempNutrients = alasql("SELECT FID FROM ? WHERE " +
+	"parameter LIKE '%po4%' OR " +
+	"parameter LIKE '%srp%' OR " +
+	"parameter LIKE '%phos%' OR " +
+	"parameter LIKE '%parameters%'", [locationList]);
+	if (tempNutrients.length > 0) nutrients.push("Phosphorous, many forms");
+
     populate(agencyTypeSelect, "Select Agency Type", agencyTypes);
     populate(agencySelect, "Select Agency", agencyNames);
     populate(datasetSelect, "Select Dataset Name", datasetNames);
     populate(parameterSelect, "Select Parameter Type", parameterTypes);
+    populate(nutrientSelect, "Select Nutrient", nutrients);
     resetFlag = false;
 }
 
@@ -129,8 +151,14 @@ function populate(select, firstDefault, list) {
         el.value = list[0];
         select.appendChild(el);
         setOption(select, list[0]);
-
-    } else {
+    } else if (list.length === 0) {
+		select.disabled = true;
+		var el = document.createElement("option");
+		el.textContent = "No matches";
+		el.value = "No matches";
+		select.appendChild(el);
+		setOption(select, "No matches");
+	} else {
         select.disabled = false;
         //Add firstDefault to the top
         var el = document.createElement("option");
@@ -161,11 +189,13 @@ function search() {
     var agencySelect = document.getElementById("agencySelect");
     var datasetSelect = document.getElementById("datasetSelect");
     var parameterSelect = document.getElementById("parameterSelect");
+    var nutrientSelect = document.getElementById("nutrientSelect");
 
     var agencyType = agencyTypeSelect.value;
     var agency = agencySelect.value;
     var dataset = datasetSelect.value;
     var parameter = parameterSelect.value;
+    var nutrient = nutrientSelect.value;
 
     if (!resetFlag) {
         if (agencyType === "Select Agency Type" || agencyType === "Show all") agencySearch = "%";
@@ -179,6 +209,9 @@ function search() {
 
         if (parameter === "Select Parameter Type" || parameter === "Show all") parameterTypeSearch = "%";
         else parameterTypeSearch = parameter;
+
+        if (nutrient === "Select Nutrient" || nutrient === "Show all") nutrientSearch = "%";
+        else nutrientSearch = nutrient;
     }
 
     var query = 'SELECT * FROM ? ' +
@@ -187,6 +220,27 @@ function search() {
         'AND name LIKE \'' + datasetNameSearch + '\' ' +
         'AND parameterType LIKE \'%' + parameterTypeSearch + '%\'';
     var locationList = alasql(query, [locations]);
+
+	if (nutrientSearch === "Nitrogen, many forms") {
+	//Check for Nitrogen
+	tempNutrients = alasql("SELECT * FROM ? WHERE " +
+	"parameter LIKE '%nh4%' OR " +
+	"parameter LIKE '%no3%' OR " +
+	"parameter LIKE '%nitrogen%' OR " +
+	"parameter LIKE '%nitrate%' OR " +
+	"parameter LIKE '%nitrite%' OR " +
+	"parameter LIKE '%ammonia%' OR " +
+	"parameter LIKE '%parameters%'", [locationList]);
+	}
+	
+	if (nutrientSearch === "Phosphorous, many forms") {
+	//Check for Phosphorous
+	tempNutrients = alasql("SELECT FID FROM ? WHERE " +
+	"parameter LIKE '%po4%' OR " +
+	"parameter LIKE '%srp%' OR " +
+	"parameter LIKE '%phosphorous%' OR " +
+	"parameter LIKE '%parameters%'", [locationList]);
+	}
 
     displayMarkers(locationList);
     searchDistinct(locationList);
@@ -365,6 +419,7 @@ function reset() {
     agencyNameSearch = "%";
     datasetNameSearch = "%";
     parameterTypeSearch = "%";
+	nutrientSearch = "%";
     search();
 }
 
@@ -396,6 +451,7 @@ document.getElementById("agencyTypeSelect").addEventListener("change", search);
 document.getElementById("agencySelect").addEventListener("change", search);
 document.getElementById("datasetSelect").addEventListener("change", search);
 document.getElementById("parameterSelect").addEventListener("change", search);
+document.getElementById("nutrientSelect").addEventListener("change", search);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 //Load in the csv, and call myMap with it.
