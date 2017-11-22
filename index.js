@@ -6,6 +6,7 @@ var agencyNameSearch = "%";
 var datasetNameSearch = "%";
 var parameterTypeSearch = "%";
 var resetFlag = false;
+var lastHUClength = 0;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
     lat: 39.7684,
@@ -39,7 +40,7 @@ function BasicLocation(FID, GID, type, organization, name, siteNo, description, 
     this.email = email;
     this.huc8 = huc8;
     this.huc10 = huc10;
-    this.huc12 = huc12;
+    this.huc12 = huc12 + '';
     this.lat = lat;
     this.lng = lng;
 }
@@ -184,7 +185,7 @@ function search() {
         'WHERE type LIKE \'' + agencySearch + '\' ' +
         'AND organization LIKE \'' + agencyNameSearch + '\' ' +
         'AND name LIKE \'' + datasetNameSearch + '\' ' +
-        'AND parameterType LIKE \'' + parameterTypeSearch + '\'';
+        'AND parameterType LIKE \'%' + parameterTypeSearch + '%\'';
     var locationList = alasql(query, [locations]);
 
     displayMarkers(locationList);
@@ -248,7 +249,7 @@ function displayMarkers(locationList) {
         }
     }
 
-    if (locationList.length < 1000) {
+    if (locationList.length < 1000 && locationList.length !== 0) {
         map.fitBounds(bounds);
         if (map.getZoom() > 13) {
             map.setZoom(13);
@@ -349,40 +350,10 @@ Array.prototype.unique = function () {
 
 function filterHUC() {
     var huc = document.getElementById("hucSearch");
+	var locationList = locations;
 
-    var bounds = new google.maps.LatLngBounds();
-    var locationList = [];
+	locationList = alasql("SELECT * FROM ? WHERE huc12 LIKE '" + huc.value + "%'", [locations]);
 
-    if (huc.value.length === 8) {
-        //Use HUC8
-        locations.forEach(function (loc) {
-            if ("0" + loc.huc8 === "" + huc.value) {
-                locationList.push(loc);
-            }
-        });
-    } else if (huc.value.length === 10) {
-        //Use HUC10
-        locations.forEach(function (loc) {
-            if ("0" + loc.huc10 === "" + huc.value) {
-                locationList.push(loc);
-            }
-        });
-    } else if (huc.value.length === 12) {
-        //Use HUC12
-        locations.forEach(function (loc) {
-            if ("0" + loc.huc12 === "" + huc.value) {
-                locationList.push(loc);
-            }
-        });
-    } else if (huc.value.length === 0) {
-        locations.forEach(function (loc) {
-            locationList.push(loc);
-        });
-        var div = document.getElementById("hucForm");
-        removeClass(div, "has-error");
-    } else {
-        //TODO Figure out what to put here.
-    }
     displayMarkers(locationList);
 }
 
