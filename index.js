@@ -345,6 +345,11 @@ function myMap() {
         zoom: 7
     };
 
+	var hucLayer = new google.maps.Map(document.getElementById("map"), {
+		url: 'http://www.filehosting.org/file/details/709315/HUC08.kml',
+		map: map
+	});
+
     //Base URL for the circle icon used as a marker.
     var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
     map = new google.maps.Map(mapCanvas, mapOptions);
