@@ -184,6 +184,10 @@ function populate(select, firstDefault, list) {
 }
 
 function search() {
+	var hucLayer = new google.maps.KmlLayer({
+		url: 'https://raw.githubusercontent.com/lthiamodelers/IWMI-Refresh/redo/res/HUC08.kml',
+		map: map
+	});
     //Create variables for the search types.
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
@@ -283,9 +287,11 @@ function createMarker(loc) {
 }
 
 function displayMarkers(locationList) {
+    var clusterSwitch = document.getElementById("clusterSwitch");
     var bounds = new google.maps.LatLngBounds();
     var FIDList = [];
     var indexList = [];
+	var clusterMarkers = [];
     locationList.forEach(function (loc) {
         FIDList.push(parseInt(loc.FID));
     });
@@ -298,10 +304,18 @@ function displayMarkers(locationList) {
         if (indexList.indexOf(i) !== -1) {
             markers[i][1].setVisible(true);
             bounds.extend(markers[i][1].position);
+			clusterMarkers.push(markers[i][1]);
         } else {
             markers[i][1].setVisible(false);
         }
     }
+	console.log("Cluster Switch: " + clusterSwitch.checked);
+
+	if (clusterSwitch.checked === true) {
+		console.log("Hey hey");
+		var markerCluster = new MarkerClusterer(map, markers,
+	        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
+	}
 
     if (locationList.length < 1000 && locationList.length !== 0) {
         map.fitBounds(bounds);
@@ -345,10 +359,6 @@ function myMap() {
         zoom: 7
     };
 
-	var hucLayer = new google.maps.Map(document.getElementById("map"), {
-		url: 'http://www.filehosting.org/file/details/709315/HUC08.kml',
-		map: map
-	});
 
     //Base URL for the circle icon used as a marker.
     var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
@@ -457,6 +467,7 @@ document.getElementById("agencySelect").addEventListener("change", search);
 document.getElementById("datasetSelect").addEventListener("change", search);
 document.getElementById("parameterSelect").addEventListener("change", search);
 document.getElementById("nutrientSelect").addEventListener("change", search);
+document.getElementById("clusterSwitch").addEventListener("change", search);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 //Load in the csv, and call myMap with it.

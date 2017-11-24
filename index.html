@@ -9,6 +9,7 @@
           href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="index.css"/>
     <link rel="stylesheet" type="text/css" href="common.css">
+	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <title>IWMI</title>
 </head>
 
@@ -29,6 +30,10 @@
     <div id="parent">
         <div id="map"></div>
         <div id="searchTools" class="container">
+			<div>
+				<input type="checkbox" data-toggle="toggle" id="clusterSwitch">
+				<label>Cluster markers</label>
+			</div>
             <h2 id="searchToolsHeader" style="margin-left: 35%">Search Tools</h2>
             <div class="form-group">
                 <input type="text" class="form-control" id="city" placeholder="City">
@@ -79,6 +84,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw&callback=myMap"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="lib/alasql.min.js"></script>
 <script src="index.js"></script>
 <script>
