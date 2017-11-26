@@ -264,7 +264,7 @@ function createMarker(loc) {
 
     marker.setMap(map);
 
-    var content = '<h5><a href="' + loc.contactURL + '">' + loc.name + '</a></h5><p><b>Agency:</b> ' +
+    var content = '<h5><a href="' + loc.contactURL + '" target="_blank">' + loc.name + '</a></h5><p><b>Agency:</b> ' +
         loc.organization + '<br><b>Location:</b> ' + loc.description + '<br><b>Site Number:</b> ' +
         loc.siteNo + '<br><b>Parameter(s) sampled:</b> ' + loc.parameter + '<br><b>Parameter Type:</b> ' +
         loc.parameterType + '<br><b>Monitoring Frequency:</b> ' + loc.frequency +
@@ -326,6 +326,7 @@ function displayMarkers(locationList) {
         map.setCenter(center);
         map.setZoom(7);
     }
+    searchCity();
 }
 
 function markerSearch(fid) {
@@ -426,17 +427,19 @@ function filterHUC() {
     displayMarkers(locationList);
 }
 
-//Helper functions
-
 function reset() {
     resetFlag = true;
     agencySearch = "%";
     agencyNameSearch = "%";
     datasetNameSearch = "%";
     parameterTypeSearch = "%";
-	nutrientSearch = "%";
+    nutrientSearch = "%";
+    document.getElementById("city").value = "";
+    document.getElementById("hucSearch").value = "";
     search();
 }
+
+//Helper functions
 
 function uniq(a) {
     return a.sort().filter(function(item, pos, ary) {
