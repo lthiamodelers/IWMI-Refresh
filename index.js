@@ -8,6 +8,8 @@ var datasetNameSearch = "%";
 var parameterTypeSearch = "%";
 var nutrientSearch = "%";
 var resetFlag = false;
+var clusterMarkersFlag = false;
+var clusterer;
 var lastHUClength = 0;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
@@ -289,11 +291,11 @@ function createMarker(loc) {
 }
 
 function displayMarkers(locationList) {
-    var clusterSwitch = document.getElementById("clusterSwitch");
+    if (map === undefined) return;
     var bounds = new google.maps.LatLngBounds();
     var FIDList = [];
     var indexList = [];
-	var clusterMarkers = [];
+	var clusterMarkersList = [];
     locationList.forEach(function (loc) {
         FIDList.push(parseInt(loc.FID));
     });
@@ -306,16 +308,15 @@ function displayMarkers(locationList) {
         if (indexList.indexOf(i) !== -1) {
             markers[i][1].setVisible(true);
             bounds.extend(markers[i][1].position);
-			clusterMarkers.push(markers[i][1]);
+			clusterMarkersList.push(markers[i][1]);
         } else {
             markers[i][1].setVisible(false);
         }
     }
-	console.log("Cluster Switch: " + clusterSwitch.checked);
 
-	if (clusterSwitch.checked === true) {
+	if (clusterMarkersFlag) {
 		console.log("Hey hey");
-		var markerCluster = new MarkerClusterer(map, markers,
+		clusterer = new MarkerClusterer(map, clusterMarkersList,
 	        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 	}
 
@@ -474,6 +475,12 @@ function removeClass(el, className) {
     }
 }
 
+function clusterMarkers() {
+    document.querySelector("#searchTools").removeChild(document.getElementById("clusterMarkers"));
+    clusterMarkersFlag = true;
+    search();
+}
+
 document.getElementById("city").addEventListener("keyup", searchCity);
 document.getElementById("reset").addEventListener("click", reset);
 document.getElementById("agencyTypeSelect").addEventListener("change", search);
@@ -481,7 +488,7 @@ document.getElementById("agencySelect").addEventListener("change", search);
 document.getElementById("datasetSelect").addEventListener("change", search);
 document.getElementById("parameterSelect").addEventListener("change", search);
 document.getElementById("nutrientSelect").addEventListener("change", search);
-document.getElementById("clusterSwitch").addEventListener("change", search);
+document.getElementById("clusterMarkers").addEventListener("click", clusterMarkers);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 
 //Load in the csv, and call myMap with it.
