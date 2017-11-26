@@ -1,6 +1,7 @@
 var map;
 var locations = [];
 var markers = [];
+var infowindows = [];
 var agencySearch = "%";
 var agencyNameSearch = "%";
 var datasetNameSearch = "%";
@@ -277,10 +278,11 @@ function createMarker(loc) {
         maxWidth: 400
     });
 
+    infowindows.push(infowindow);
+
     //Add the on click listener to the marker.
     marker.addListener('click', function () {
-        //An attempt to close the previously opened window.
-        if (infowindow) infowindow.close();
+        closeInfowindows();
         infowindow.open(map, marker);
     });
     return marker;
@@ -436,12 +438,19 @@ function reset() {
     datasetNameSearch = "%";
     parameterTypeSearch = "%";
     nutrientSearch = "%";
+    closeInfowindows();
     document.getElementById("city").value = "";
     document.getElementById("hucSearch").value = "";
     search();
 }
 
 //Helper functions
+
+function closeInfowindows() {
+    infowindows.forEach(function (infowindow) {
+        infowindow.close();
+    });
+}
 
 function uniq(a) {
     return a.sort().filter(function(item, pos, ary) {
