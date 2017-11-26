@@ -326,7 +326,9 @@ function displayMarkers(locationList) {
         map.setCenter(center);
         map.setZoom(7);
     }
-    searchCity();
+    if (document.getElementById("city").value !== "") {
+        searchCity();
+    }
 }
 
 function markerSearch(fid) {
