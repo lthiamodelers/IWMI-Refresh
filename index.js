@@ -258,7 +258,8 @@ function search() {
 
 function downloadList() {
     var csv = toCsv(locationListGlobal);
-    download("locations.csv", csv);
+    var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
+    saveAs(blob, "locations.csv");
 }
 
 function download(filename, text) {
@@ -337,7 +338,6 @@ function displayMarkers(locationList) {
     }
 
 	if (clusterMarkersFlag) {
-		console.log("Hey hey");
 		clusterer = new MarkerClusterer(map, clusterMarkersList,
 	        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
 	}
@@ -369,7 +369,7 @@ function parse(text) {
     for (var i = 0; i < data.length; i++) {
         var a = data[i];
 
-        var loc = new BasicLocation(a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
+        var loc = new BasicLocation(i + 1, a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
             a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
 
         locations.push(loc);
