@@ -2,6 +2,7 @@ var map;
 var locations = [];
 var markers = [];
 var infowindows = [];
+var locationListGlobal = [];
 var agencySearch = "%";
 var agencyNameSearch = "%";
 var datasetNameSearch = "%";
@@ -10,7 +11,6 @@ var nutrientSearch = "%";
 var resetFlag = false;
 var clusterMarkersFlag = false;
 var clusterer;
-var lastHUClength = 0;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
     lat: 39.7684,
@@ -249,8 +249,29 @@ function search() {
 	"parameter LIKE '%parameters%'", [locationList]);
 	}
 
+	locationListGlobal = locationList;
+
+
     displayMarkers(locationList);
     searchDistinct(locationList);
+}
+
+function downloadList() {
+    var csv = toCsv(locationListGlobal);
+    download("locations.csv", csv);
+}
+
+function download(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
 }
 
 function createMarker(loc) {
@@ -262,7 +283,8 @@ function createMarker(loc) {
             lat: lat,
             lng: lng
         },
-        title: loc.name
+        title: loc.name,
+        size: 5
     });
 
     marker.setMap(map);
@@ -351,7 +373,9 @@ function parse(text) {
             a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
 
         locations.push(loc);
+        locationListGlobal.push(loc);
     }
+
     searchDistinct(locations);
     myMap();
 }
@@ -364,7 +388,6 @@ function myMap() {
         center: center,
         zoom: 7
     };
-
 
     //Base URL for the circle icon used as a marker.
     var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
@@ -490,6 +513,7 @@ document.getElementById("parameterSelect").addEventListener("change", search);
 document.getElementById("nutrientSelect").addEventListener("change", search);
 document.getElementById("clusterMarkers").addEventListener("click", clusterMarkers);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
+document.getElementById("download").addEventListener("click", downloadList);
 
 //Load in the csv, and call myMap with it.
 $(document).ready(function () {
