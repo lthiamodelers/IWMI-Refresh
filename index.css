@@ -74,7 +74,7 @@
 }
 
 .navbar {
-    width: calc(100% - 150px);
+    width: 100%;
 }
 
 #searchToolsHeader {
@@ -85,13 +85,6 @@
 #disclaimer {
 	margin-right: 20px;
 	margin-left: 20px;
-}
-
-#forkMe {
-	position: absolute;
-	top: 0;
-	right: 0;
-	border: 0;
 }
 
 input[type="number"]::-webkit-outer-spin-button,

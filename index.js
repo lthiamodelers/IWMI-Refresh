@@ -190,10 +190,6 @@ function populate(select, firstDefault, list) {
 }
 
 function search() {
-	var hucLayer = new google.maps.KmlLayer({
-		url: 'https://raw.githubusercontent.com/lthiamodelers/IWMI-Refresh/redo/res/HUC08.kml',
-		map: map
-	});
     //Create variables for the search types.
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
