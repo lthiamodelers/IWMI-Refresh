@@ -11,7 +11,7 @@ var nutrientSearch = "%";
 var resetFlag = false;
 var clusterMarkersFlag = false;
 var clusterer;
-var markerScale = 1/3;
+var markerScale = 1 / 3;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
     lat: 39.7684,
@@ -103,24 +103,24 @@ function searchDistinct(locationList) {
     parameterTypes = uniq(allParameters);
     parameterTypes.sort();
 
-	//Check for Nitrogen
-	tempNutrients = alasql("SELECT FID FROM ? WHERE " +
-	"parameter LIKE '%nh4%' OR " +
-	"parameter LIKE '%no3%' OR " +
-	"parameter LIKE '%nitrogen%' OR " +
-	"parameter LIKE '%nitrate%' OR " +
-	"parameter LIKE '%nitrite%' OR " +
-	"parameter LIKE '%ammonia%' OR " +
-	"parameter LIKE '%parameters%'", [locationList]);
-	if (tempNutrients.length > 0) nutrients.push("Nitrogen, many forms");
+    //Check for Nitrogen
+    tempNutrients = alasql("SELECT FID FROM ? WHERE " +
+        "parameter LIKE '%nh4%' OR " +
+        "parameter LIKE '%no3%' OR " +
+        "parameter LIKE '%nitrogen%' OR " +
+        "parameter LIKE '%nitrate%' OR " +
+        "parameter LIKE '%nitrite%' OR " +
+        "parameter LIKE '%ammonia%' OR " +
+        "parameter LIKE '%parameters%'", [locationList]);
+    if (tempNutrients.length > 0) nutrients.push("Nitrogen, many forms");
 
-	//Check for Phosphorous
-	tempNutrients = alasql("SELECT FID FROM ? WHERE " +
-	"parameter LIKE '%po4%' OR " +
-	"parameter LIKE '%srp%' OR " +
-	"parameter LIKE '%phos%' OR " +
-	"parameter LIKE '%parameters%'", [locationList]);
-	if (tempNutrients.length > 0) nutrients.push("Phosphorous, many forms");
+    //Check for Phosphorous
+    tempNutrients = alasql("SELECT FID FROM ? WHERE " +
+        "parameter LIKE '%po4%' OR " +
+        "parameter LIKE '%srp%' OR " +
+        "parameter LIKE '%phos%' OR " +
+        "parameter LIKE '%parameters%'", [locationList]);
+    if (tempNutrients.length > 0) nutrients.push("Phosphorous, many forms");
 
     populate(agencyTypeSelect, "Select Agency Type", agencyTypes);
     populate(agencySelect, "Select Agency", agencyNames);
@@ -158,13 +158,13 @@ function populate(select, firstDefault, list) {
         select.appendChild(el);
         setOption(select, list[0]);
     } else if (list.length === 0) {
-		select.disabled = true;
-		var el = document.createElement("option");
-		el.textContent = "No matches";
-		el.value = "No matches";
-		select.appendChild(el);
-		setOption(select, "No matches");
-	} else {
+        select.disabled = true;
+        var el = document.createElement("option");
+        el.textContent = "No matches";
+        el.value = "No matches";
+        select.appendChild(el);
+        setOption(select, "No matches");
+    } else {
         select.disabled = false;
         //Add firstDefault to the top
         var el = document.createElement("option");
@@ -227,28 +227,28 @@ function search() {
         'AND parameterType LIKE \'%' + parameterTypeSearch + '%\'';
     var locationList = alasql(query, [locations]);
 
-	if (nutrientSearch === "Nitrogen, many forms") {
-	//Check for Nitrogen
-	tempNutrients = alasql("SELECT * FROM ? WHERE " +
-	"parameter LIKE '%nh4%' OR " +
-	"parameter LIKE '%no3%' OR " +
-	"parameter LIKE '%nitrogen%' OR " +
-	"parameter LIKE '%nitrate%' OR " +
-	"parameter LIKE '%nitrite%' OR " +
-	"parameter LIKE '%ammonia%' OR " +
-	"parameter LIKE '%parameters%'", [locationList]);
-	}
-	
-	if (nutrientSearch === "Phosphorous, many forms") {
-	//Check for Phosphorous
-	tempNutrients = alasql("SELECT FID FROM ? WHERE " +
-	"parameter LIKE '%po4%' OR " +
-	"parameter LIKE '%srp%' OR " +
-	"parameter LIKE '%phosphorous%' OR " +
-	"parameter LIKE '%parameters%'", [locationList]);
-	}
+    if (nutrientSearch === "Nitrogen, many forms") {
+        //Check for Nitrogen
+        tempNutrients = alasql("SELECT * FROM ? WHERE " +
+            "parameter LIKE '%nh4%' OR " +
+            "parameter LIKE '%no3%' OR " +
+            "parameter LIKE '%nitrogen%' OR " +
+            "parameter LIKE '%nitrate%' OR " +
+            "parameter LIKE '%nitrite%' OR " +
+            "parameter LIKE '%ammonia%' OR " +
+            "parameter LIKE '%parameters%'", [locationList]);
+    }
 
-	locationListGlobal = locationList;
+    if (nutrientSearch === "Phosphorous, many forms") {
+        //Check for Phosphorous
+        tempNutrients = alasql("SELECT FID FROM ? WHERE " +
+            "parameter LIKE '%po4%' OR " +
+            "parameter LIKE '%srp%' OR " +
+            "parameter LIKE '%phosphorous%' OR " +
+            "parameter LIKE '%parameters%'", [locationList]);
+    }
+
+    locationListGlobal = locationList;
 
 
     displayMarkers(locationList);
@@ -325,7 +325,7 @@ function displayMarkers(locationList) {
     var bounds = new google.maps.LatLngBounds();
     var FIDList = [];
     var indexList = [];
-	var clusterMarkersList = [];
+    var clusterMarkersList = [];
     locationList.forEach(function (loc) {
         FIDList.push(parseInt(loc.FID));
     });
@@ -338,16 +338,20 @@ function displayMarkers(locationList) {
         if (indexList.indexOf(i) !== -1) {
             markers[i][1].setVisible(true);
             bounds.extend(markers[i][1].position);
-			clusterMarkersList.push(markers[i][1]);
+            clusterMarkersList.push(markers[i][1]);
         } else {
             markers[i][1].setVisible(false);
         }
     }
 
-	if (clusterMarkersFlag) {
-		clusterer = new MarkerClusterer(map, clusterMarkersList,
-	        {imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'});
-	}
+    if (clusterMarkersFlag) {
+        clusterer = new MarkerClusterer(map, clusterMarkersList,
+            {
+                imagePath: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m',
+                maxZoom: 11,
+                minimumClusterSize: 5
+            });
+    }
 
     if (locationList.length < 1000 && locationList.length !== 0) {
         map.fitBounds(bounds);
@@ -456,9 +460,9 @@ Array.prototype.unique = function () {
 
 function filterHUC() {
     var huc = document.getElementById("hucSearch");
-	var locationList = locations;
+    var locationList = locations;
 
-	locationList = alasql("SELECT * FROM ? WHERE huc12 LIKE '" + huc.value + "%'", [locations]);
+    locationList = alasql("SELECT * FROM ? WHERE huc12 LIKE '" + huc.value + "%'", [locations]);
 
     displayMarkers(locationList);
 }
@@ -502,7 +506,7 @@ function closeInfowindows() {
 }
 
 function uniq(a) {
-    return a.sort().filter(function(item, pos, ary) {
+    return a.sort().filter(function (item, pos, ary) {
         return !pos || item !== ary[pos - 1];
     })
 }
@@ -526,7 +530,7 @@ function removeClass(el, className) {
 function clusterMarkers() {
     var button = document.getElementById("clusterMarkers");
     if (clusterMarkersFlag === false) {
-        button.innerHTML = "Un-cluster Markers";
+        button.innerHTML = "Un-cluster Markers (resets page)";
         clusterMarkersFlag = true;
     } else {
         location.reload();
