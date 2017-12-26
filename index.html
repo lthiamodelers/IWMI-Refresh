@@ -9,7 +9,7 @@
           href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
     <link rel="stylesheet" type="text/css" href="index.css"/>
     <link rel="stylesheet" type="text/css" href="common.css">
-	<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <title>IWMI</title>
 </head>
 
@@ -30,12 +30,13 @@
     <div id="parent">
         <div id="map"></div>
         <div id="searchTools" class="container">
-            <button id="clusterMarkers" class="btn btn-primary" type="button">Cluster Markers</button>
-            <h2 id="searchToolsHeader" style="margin-left: 35%">Search Tools</h2>
+            <div id="searchToolsHeaderContainer">
+                <h2 id="searchToolsHeader">Search Tools</h2>
+            </div>
+            <br/>
             <div class="form-group">
                 <input type="text" class="form-control" id="city" placeholder="City">
             </div>
-            <hr/>
             <select id="agencyTypeSelect" class="form-control" style="margin-bottom: 10px;">
                 <option>Select Agency Type</option>
                 <option>Show all</option>
@@ -56,18 +57,18 @@
                 <option>Select Nutrient</option>
                 <option>Show all</option>
             </select>
+            <input type="number" class="form-control" id="hucSearch" placeholder="HUC8/10/12 (e.g. 51401010203)" maxlength="12">
             <button id="reset" class="btn btn-primary" type="button">Reset</button>
             <hr/>
-            <div id="hucForm" class="form-group">
-                <input type="number" class="form-control" id="hucSearch" placeholder="HUC8/10/12" maxlength="12">
-            </div>
-            <div>e.g. 51401010203</div>
-            <hr/>
             <div><b>This site works best on a computer in Chrome, Firefox, Safari, and Edge.</b></div>
+            <button id="clusterMarkers" class="btn btn-primary" type="button">Cluster Markers</button>
+            <br/>
             <button id="download" class="btn btn-primary" type="button">Download Current Selection (.csv)</button>
             <br/>
             <img id="markerColors" src="res/markerColors.png">
-            <div>Want to contribute your data? Please contact the <a href="mailto:manager@lthia.org?subject=IWMI Data Contribution">manager</a>! </div>
+            <div>Want to contribute data? Please contact the <a
+                    href="mailto:manager@lthia.org?subject=IWMI Data Contribution">manager</a>!
+            </div>
         </div>
 
     </div>
