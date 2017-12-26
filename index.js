@@ -11,11 +11,13 @@ var nutrientSearch = "%";
 var resetFlag = false;
 var clusterMarkersFlag = false;
 var clusterer;
+var markerScale = 1/3;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
     lat: 39.7684,
     lng: -86.1581
 };
+var icons = [];
 
 /*
 Agency Type = type
@@ -67,6 +69,7 @@ function searchDistinct(locationList) {
         }
     }
     agencyTypes.sort();
+    console.log(agencyTypes);
 
     tempAgencyNames = alasql('SELECT DISTINCT organization FROM ?', [locationList]);
     for (var i = 0; i < tempAgencyNames.length; i++) {
@@ -279,11 +282,19 @@ function createMarker(loc) {
     var lat = parseFloat(loc.lat);
     var lng = parseFloat(loc.lng);
 
+    var pinImage;
+    icons.forEach(function (icon) {
+        if (icon[0] === loc.type) {
+            pinImage = icon[1];
+        }
+    });
+
     var marker = new google.maps.Marker({
         position: {
             lat: lat,
             lng: lng
         },
+        icon: pinImage,
         title: loc.name,
         size: 5
     });
@@ -364,6 +375,7 @@ function markerSearch(fid) {
 }
 
 function parse(text) {
+    markerIcons();
     var jsonVersion = JSON.parse(text);
     var data = jsonVersion.rows;
     for (var i = 0; i < data.length; i++) {
@@ -470,6 +482,23 @@ function reset() {
 
 //Helper functions
 
+function markerIcons() {
+    icons.push(["Federal and regional agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/0000FF/")]);
+    icons.push(["State agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/10B2FF/")]);
+    icons.push(["Cities and towns (except drinking water)", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/004184/")]);
+    icons.push(["Non-governmental organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/A50000/")]);
+    icons.push(["Counties", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/840084/")]);
+    icons.push(["Private sector", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/104121/")]);
+    icons.push(["Universities", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/CEFF31/")]);
+    icons.push(["Watershed organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF00FF/")]);
+    icons.push(["Drinking water", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/4282FF/")]);
+    icons.push(["Volunteers", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/10D352/")]);
+    icons.forEach(function (icon) {
+        icon[1].scaledSize = new google.maps.Size(42 * markerScale, 68 * markerScale);
+    });
+    console.log(icons);
+}
+
 function closeInfowindows() {
     infowindows.forEach(function (infowindow) {
         infowindow.close();
@@ -499,8 +528,13 @@ function removeClass(el, className) {
 }
 
 function clusterMarkers() {
-    document.querySelector("#searchTools").removeChild(document.getElementById("clusterMarkers"));
-    clusterMarkersFlag = true;
+    var button = document.getElementById("clusterMarkers");
+    if (clusterMarkersFlag === false) {
+        button.innerHTML = "Un-cluster Markers";
+        clusterMarkersFlag = true;
+    } else {
+        location.reload();
+    }
     search();
 }
 

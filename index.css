@@ -10,8 +10,13 @@
 	height: 99%;
 }
 
+#markerColors {
+	max-width: 100%;
+	max-height: 100%;
+}
+
 #searchTools {
-	width: 40%;
+	width: 450px;
 }
 
 #city {
