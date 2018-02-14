@@ -19,6 +19,19 @@ var center = {
 };
 var icons = [];
 
+var nitrogenSQL =
+    "parameter LIKE '%nh4%' OR " +
+    "parameter LIKE '%no3%' OR " +
+    "parameter LIKE '%nitrogen%' OR " +
+    "parameter LIKE '%nitrate%' OR " +
+    "parameter LIKE '%nitrite%' OR " +
+    "parameter LIKE '%ammonia%' OR " +
+    "parameter LIKE '%parameters%'";
+var phosphorusSQL =
+    "parameter LIKE '%po4%' OR " +
+    "parameter LIKE '%srp%' OR " +
+    "parameter LIKE '%phos%' OR " +
+    "parameter LIKE '%parameters%'";
 /*
 Agency Type = type
 Agency Name = organization
@@ -26,6 +39,7 @@ Dataset Name = name
 Parameter Type = parameterType
  */
 
+// This object is used to store location points from the Fusion Table
 function BasicLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, publiclyAvailible, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
     this.FID = FID;
     this.GID = GID;
@@ -51,17 +65,19 @@ function BasicLocation(FID, GID, type, organization, name, siteNo, description, 
     this.lng = lng;
 }
 
-//These variables should be string arrays
+// This finds what to populate the various dropdowns with.
 function searchDistinct(locationList) {
-    var tempAgencyTypes = [], tempAgencyNames = [], tempDatasetNames = [], tempParameterTypes = [], tempNutrients = [];
+    var tempAgencyTypes, tempAgencyNames, tempDatasetNames, tempParameterTypes, tempNutrients;
+    // These variables should be string arrays
     var agencyTypes = [], agencyNames = [], datasetNames = [], parameterTypes = [], nutrients = [];
+    // Get the select elements
     var agencyTypeSelect = document.getElementById("agencyTypeSelect");
     var agencySelect = document.getElementById("agencySelect");
     var datasetSelect = document.getElementById("datasetSelect");
     var parameterSelect = document.getElementById("parameterSelect");
     var nutrientSelect = document.getElementById("nutrientSelect");
 
-
+    // Search for the agencyTypes.
     tempAgencyTypes = alasql('SELECT DISTINCT type FROM ?', [locationList]);
     for (var i = 0; i < tempAgencyTypes.length; i++) {
         if (tempAgencyTypes[i].type !== "") {
@@ -69,7 +85,6 @@ function searchDistinct(locationList) {
         }
     }
     agencyTypes.sort();
-    console.log(agencyTypes);
 
     tempAgencyNames = alasql('SELECT DISTINCT organization FROM ?', [locationList]);
     for (var i = 0; i < tempAgencyNames.length; i++) {
@@ -94,55 +109,48 @@ function searchDistinct(locationList) {
         }
     }
     var allParameters = [];
+    // Split all the parameter types on the commas, and put them all in allParameters.
     parameterTypes.forEach(function (type) {
         var pars = type.split(", ");
         pars.forEach(function (par) {
             allParameters.push(par);
         });
     });
+    // Remove duplicate parameter types from allParameters, and put the result in parameterTypes.
     parameterTypes = uniq(allParameters);
     parameterTypes.sort();
 
     //Check for Nitrogen
-    tempNutrients = alasql("SELECT FID FROM ? WHERE " +
-        "parameter LIKE '%nh4%' OR " +
-        "parameter LIKE '%no3%' OR " +
-        "parameter LIKE '%nitrogen%' OR " +
-        "parameter LIKE '%nitrate%' OR " +
-        "parameter LIKE '%nitrite%' OR " +
-        "parameter LIKE '%ammonia%' OR " +
-        "parameter LIKE '%parameters%'", [locationList]);
+    tempNutrients = alasql("SELECT FID FROM ? WHERE " + nitrogenSQL, [locationList]);
     if (tempNutrients.length > 0) nutrients.push("Nitrogen, many forms");
 
     //Check for Phosphorous
-    tempNutrients = alasql("SELECT FID FROM ? WHERE " +
-        "parameter LIKE '%po4%' OR " +
-        "parameter LIKE '%srp%' OR " +
-        "parameter LIKE '%phos%' OR " +
-        "parameter LIKE '%parameters%'", [locationList]);
+    tempNutrients = alasql("SELECT FID FROM ? WHERE " + phosphorusSQL, [locationList]);
     if (tempNutrients.length > 0) nutrients.push("Phosphorous, many forms");
 
+    // Populate the select elements with the results.
     populate(agencyTypeSelect, "Select Agency Type", agencyTypes);
     populate(agencySelect, "Select Agency", agencyNames);
     populate(datasetSelect, "Select Dataset Name", datasetNames);
     populate(parameterSelect, "Select Parameter Type", parameterTypes);
     populate(nutrientSelect, "Select Nutrient", nutrients);
+    // Set the reset flag to false so the site doesn't reset.
     resetFlag = false;
 }
 
-
+// Sets the selected option of selectElement to be the one that matches value
 function setOption(selectElement, value) {
     var options = selectElement.options;
     for (var i = 0, optionsLength = options.length; i < optionsLength; i++) {
         if (options[i].value === value) {
             selectElement.selectedIndex = i;
-            return true;
         }
     }
-    return false;
 }
 
+// Populates the provided select element with list, including firstDefault at the top.
 function populate(select, firstDefault, list) {
+    // Grab the previous value so we can set that to be the selected option later.
     var prevVal = select.value;
     if (resetFlag) prevVal = "";
     for (var i = 0; i < select.options.length; i++) {
@@ -150,6 +158,7 @@ function populate(select, firstDefault, list) {
     }
     select.options.length = 0;
 
+    // If there is only one option in the list, add it without "show all", and select it.
     if (list.length === 1) {
         select.disabled = true;
         var el = document.createElement("option");
@@ -157,6 +166,7 @@ function populate(select, firstDefault, list) {
         el.value = list[0];
         select.appendChild(el);
         setOption(select, list[0]);
+        // If there aren't any options in the list, make it "No matches", and select it.
     } else if (list.length === 0) {
         select.disabled = true;
         var el = document.createElement("option");
@@ -178,13 +188,14 @@ function populate(select, firstDefault, list) {
         el.value = "Show all";
         select.appendChild(el);
 
-        //Stick the types in all into the select as options
+        //Stick the types into the select as options
         for (var i = 0; i < list.length; i++) {
             var el = document.createElement("option");
             el.textContent = list[i];
             el.value = list[i];
             select.appendChild(el);
         }
+        // Set the selected option of the select to the previous value
         setOption(select, prevVal);
     }
 }
@@ -197,12 +208,14 @@ function search() {
     var parameterSelect = document.getElementById("parameterSelect");
     var nutrientSelect = document.getElementById("nutrientSelect");
 
+    //Get the values to search with.
     var agencyType = agencyTypeSelect.value;
     var agency = agencySelect.value;
     var dataset = datasetSelect.value;
     var parameter = parameterSelect.value;
     var nutrient = nutrientSelect.value;
 
+    //Check if the values are "Select ..." or "Show all", and make the search term a wildcard (%)
     if (!resetFlag) {
         if (agencyType === "Select Agency Type" || agencyType === "Show all") agencySearch = "%";
         else agencySearch = agencyType;
@@ -220,71 +233,56 @@ function search() {
         else nutrientSearch = nutrient;
     }
 
+    // Build the query
     var query = 'SELECT * FROM ? ' +
         'WHERE type LIKE \'' + agencySearch + '\' ' +
         'AND organization LIKE \'' + agencyNameSearch + '\' ' +
         'AND name LIKE \'' + datasetNameSearch + '\' ' +
         'AND parameterType LIKE \'%' + parameterTypeSearch + '%\'';
+    // Execute the query, and put results in locationList
     var locationList = alasql(query, [locations]);
 
+    // If searching for Nitrogen, select nitrogen form the search results
     if (nutrientSearch === "Nitrogen, many forms") {
         //Check for Nitrogen
-        tempNutrients = alasql("SELECT * FROM ? WHERE " +
-            "parameter LIKE '%nh4%' OR " +
-            "parameter LIKE '%no3%' OR " +
-            "parameter LIKE '%nitrogen%' OR " +
-            "parameter LIKE '%nitrate%' OR " +
-            "parameter LIKE '%nitrite%' OR " +
-            "parameter LIKE '%ammonia%' OR " +
-            "parameter LIKE '%parameters%'", [locationList]);
+        tempNutrients = alasql("SELECT * FROM ? WHERE " + nitrogenSQL, [locationList]);
     }
 
+    // If searching for Phosphorus, select nitrogen form the search results
     if (nutrientSearch === "Phosphorous, many forms") {
         //Check for Phosphorous
-        tempNutrients = alasql("SELECT FID FROM ? WHERE " +
-            "parameter LIKE '%po4%' OR " +
-            "parameter LIKE '%srp%' OR " +
-            "parameter LIKE '%phosphorous%' OR " +
-            "parameter LIKE '%parameters%'", [locationList]);
+        tempNutrients = alasql("SELECT FID FROM ? WHERE " + phosphorusSQL, [locationList]);
     }
 
     locationListGlobal = locationList;
-
 
     displayMarkers(locationList);
     searchDistinct(locationList);
 }
 
+// Use FileSaver script to save the currently selected locations using a blob.
 function downloadList() {
     var csv = toCsv(locationListGlobal);
     var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "locations.csv");
 }
 
-function download(filename, text) {
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    element.setAttribute('download', filename);
-
-    element.style.display = 'none';
-    document.body.appendChild(element);
-
-    element.click();
-
-    document.body.removeChild(element);
-}
-
+// Create marker from a location.
 function createMarker(loc) {
+    // Get the lat long as floats
     var lat = parseFloat(loc.lat);
     var lng = parseFloat(loc.lng);
 
-    var pinImage;
+    // Find the correct pin image for the given location.
+    // Use a red pin as default
+    var pinImage = icons[0];
     icons.forEach(function (icon) {
         if (icon[0] === loc.type) {
             pinImage = icon[1];
         }
     });
 
+    // Create the marker object
     var marker = new google.maps.Marker({
         position: {
             lat: lat,
@@ -297,19 +295,13 @@ function createMarker(loc) {
 
     marker.setMap(map);
 
-    var content = '<h5><a href="' + loc.contactURL + '" target="_blank">' + loc.name + '</a></h5><p><b>Agency:</b> ' +
-        loc.organization + '<br><b>Location:</b> ' + loc.description + '<br><b>Site Number:</b> ' +
-        loc.siteNo + '<br><b>Parameter(s) sampled:</b> ' + loc.parameter + '<br><b>Parameter Type:</b> ' +
-        loc.parameterType + '<br><b>Monitoring Frequency:</b> ' + loc.frequency +
-        '<br><b>Publicly Availible?:</b> ' + loc.publiclyAvailible + '<br><b>Data Quality Information:</b> ' +
-        loc.quality + '<br><b>Date of record:</b> ' + loc.startDate + ' to ' + loc.endDate +
-        '<br><b>HUC12:</b> ' + loc.huc12 + '</p>';
-
+    // Create the infowindow for the marker.
     var infowindow = new google.maps.InfoWindow({
-        content: content,
+        content: generateInfoWindowContent(loc),
         maxWidth: 400
     });
 
+    // No idea what's going on here
     infowindows.push(infowindow);
 
     //Add the on click listener to the marker.
@@ -320,30 +312,36 @@ function createMarker(loc) {
     return marker;
 }
 
+// Display the markers, turning unselected markers invisible
 function displayMarkers(locationList) {
     if (map === undefined) return;
     var bounds = new google.maps.LatLngBounds();
     var FIDList = [];
     var indexList = [];
     var clusterMarkersList = [];
+    // Get the FIDs for each selected location
     locationList.forEach(function (loc) {
         FIDList.push(parseInt(loc.FID));
     });
+    // Get a list of markers to display?
     FIDList.forEach(function (fid) {
         indexList.push(markerSearch(fid));
     });
 
     for (var i = 0; i < markers.length; i++) {
         var index;
+        // If there is a marker at the current location in the indexList, make it visible
         if (indexList.indexOf(i) !== -1) {
             markers[i][1].setVisible(true);
             bounds.extend(markers[i][1].position);
             clusterMarkersList.push(markers[i][1]);
+            // Otherwise, make it invisible.
         } else {
             markers[i][1].setVisible(false);
         }
     }
 
+    // If the cluster marker flag is on, cluster markers.
     if (clusterMarkersFlag) {
         clusterer = new MarkerClusterer(map, clusterMarkersList,
             {
@@ -353,20 +351,24 @@ function displayMarkers(locationList) {
             });
     }
 
+    // If there are less than 1000 markers being displayed, add them to the bounds, and fit the map to it.
     if (locationList.length < 1000 && locationList.length !== 0) {
         map.fitBounds(bounds);
         if (map.getZoom() > 13) {
             map.setZoom(13);
         }
+        // If there are 0, or more than 1000 locations, center the map in Indy.
     } else {
         map.setCenter(center);
         map.setZoom(7);
     }
+    // Search for the city if the user has something in the box.
     if (document.getElementById("city").value !== "") {
         searchCity();
     }
 }
 
+// Search for the marker with the provided fid
 function markerSearch(fid) {
     for (var i = 0; i < markers.length; i++) {
         if (markers[i][0] === fid) return i;
@@ -374,6 +376,7 @@ function markerSearch(fid) {
     return -1;
 }
 
+// Parse all the locations. Called at the very beginning by jQuery.
 function parse(text) {
     markerIcons();
     var jsonVersion = JSON.parse(text);
@@ -482,6 +485,22 @@ function reset() {
 
 //Helper functions
 
+// Generate the content for a marker's infowindow.
+function generateInfoWindowContent(loc) {
+    var content = '<h5><a href="' + loc.contactURL + '" target="_blank">' + loc.name +
+        '</a></h5><p><b>Agency:</b> ' + loc.organization +
+        '<br><b>Location:</b> ' + loc.description +
+        '<br><b>Site Number:</b> ' + loc.siteNo +
+        '<br><b>Parameter(s) sampled:</b> ' + loc.parameter +
+        '<br><b>Parameter Type:</b> ' + loc.parameterType +
+        '<br><b>Monitoring Frequency:</b> ' + loc.frequency +
+        '<br><b>Publicly Availible?:</b> ' + (loc.publiclyAvailible ? "Yes" : "No") +
+        '<br><b>Data Quality Information Available?:</b> ' + (loc.quality ? "Yes" : "No") +
+        '<br><b>Date of record:</b> ' + loc.startDate + ' to ' + loc.endDate +
+        '<br><b>HUC12:</b> ' + loc.huc12 + '</p>';
+    return content;
+}
+
 function markerIcons() {
     icons.push(["Federal and regional agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/0000FF/")]);
     icons.push(["State agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/10B2FF/")]);
@@ -496,7 +515,6 @@ function markerIcons() {
     icons.forEach(function (icon) {
         icon[1].scaledSize = new google.maps.Size(42 * markerScale, 68 * markerScale);
     });
-    console.log(icons);
 }
 
 function closeInfowindows() {
@@ -549,7 +567,7 @@ document.getElementById("clusterMarkers").addEventListener("click", clusterMarke
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
 document.getElementById("download").addEventListener("click", downloadList);
 
-//Load in the csv, and call myMap with it.
+//Load in the csv, and call parse with it.
 $(document).ready(function () {
     $.ajax({
         type: "POST",
