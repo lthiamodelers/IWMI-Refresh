@@ -11,14 +11,15 @@ var nutrientSearch = "%";
 var resetFlag = false;
 var clusterMarkersFlag = false;
 var clusterer;
-var markerScale = 1 / 3;
+var markerScale = 1/3;
 //Google search "Indianapolis, IN lat long". Will be used as the center point.
 var center = {
-    lat: 39.7684,
-    lng: -86.1581
+    lat: config.CENTER_LAT,
+    lng: config.CENTER_LONG
 };
 var icons = [];
 
+// This is the SQL code to search for nitrogen in the parameter field.
 var nitrogenSQL =
     "parameter LIKE '%nh4%' OR " +
     "parameter LIKE '%no3%' OR " +
@@ -27,6 +28,7 @@ var nitrogenSQL =
     "parameter LIKE '%nitrite%' OR " +
     "parameter LIKE '%ammonia%' OR " +
     "parameter LIKE '%parameters%'";
+// This is the SQL code to search for phosphorus in the parameter field.
 var phosphorusSQL =
     "parameter LIKE '%po4%' OR " +
     "parameter LIKE '%srp%' OR " +
@@ -404,8 +406,6 @@ function myMap() {
         zoom: 7
     };
 
-    //Base URL for the circle icon used as a marker.
-    var iconBase = 'https://maps.google.com/mapfiles/kml/shapes/';
     map = new google.maps.Map(mapCanvas, mapOptions);
 
     for (var i = 0; i < locations.length; i++) {
@@ -498,6 +498,9 @@ function generateInfoWindowContent(loc) {
         '<br><b>Data Quality Information Available?:</b> ' + (loc.quality ? "Yes" : "No") +
         '<br><b>Date of record:</b> ' + loc.startDate + ' to ' + loc.endDate +
         '<br><b>HUC12:</b> ' + loc.huc12 + '</p>';
+    if (loc.email !== "" || loc.email !== null) {
+        content += "<br><a href='mailto:" + loc.email + "?subject=Water%20Data'>Email</a>"
+    }
     return content;
 }
 
@@ -569,11 +572,13 @@ document.getElementById("download").addEventListener("click", downloadList);
 
 //Load in the csv, and call parse with it.
 $(document).ready(function () {
+    console.log(config);
     $.ajax({
         type: "POST",
-        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%201urVQf1MWtRf2XavqoR9a6l_CsdE7IVdpNVNTbNrp&pli&key=AIzaSyASiSo-iDClClxEHgAGFYGvz55dAXIYJWw",
+        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%20" + config.GOOGLE_FUSION_TABLE_ID + "&key=AIzaSyBss3canGF7OHkgWQ3pN6gmc5-KvW5l0wc",
         dataType: "text",
         success: function (data) {
+            // document.getElementById('disclaimer').innerHTML = config.DISCLAIMER;
             parse(data);
         }
     });
