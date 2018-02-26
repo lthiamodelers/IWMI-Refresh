@@ -572,7 +572,6 @@ document.getElementById("download").addEventListener("click", downloadList);
 
 //Load in the csv, and call parse with it.
 $(document).ready(function () {
-    console.log(config);
     $.ajax({
         type: "POST",
         url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%20" + config.GOOGLE_FUSION_TABLE_ID + "&key=AIzaSyBss3canGF7OHkgWQ3pN6gmc5-KvW5l0wc",
