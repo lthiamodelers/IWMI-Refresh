@@ -1,67 +1,65 @@
-#parent {
-	display: flex;
-	width: 100%;
-	height: 93%;
-}
-
 #map {
-	flex: 1;
-	width: 40%;
-}
-
-#markerColors {
-	max-width: 100%;
-	max-height: 100%;
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
-
-#clusterMarkers {
-	margin-top: 10px;
-}
-
-#hucSearch {
-	margin-top: 10px;
+  height: 100vh;
+  margin-bottom: 15px;
 }
 
 #searchTools {
-	width: 550px;
+  max-width: 550px;
+}
+
+#markerColors {
+  max-width: 100%;
+  max-height: 100%;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#clusterMarkers {
+  margin-top: 10px;
+}
+
+#hucSearch {
+  margin-top: 10px;
 }
 
 #city {
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 #download {
-	margin-top: 10px;
+  margin-top: 10px;
+}
+
+.info-content {
+  width: 50vw;
 }
 
 .form-control {
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .select button {
-	width: 100%;
-	text-align: left;
+  width: 100%;
+  text-align: left;
 }
 
 .select .caret {
-	position: absolute;
-	right: 10px;
-	margin-top: 10px;
+  position: absolute;
+  right: 10px;
+  margin-top: 10px;
 }
 
 .select:last-child>.btn {
-	border-top-left-radius: 5px;
-	border-bottom-left-radius: 5px;
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
 }
 
 .selected {
-	padding-right: 10px;
+  padding-right: 10px;
 }
 
 .option {
-	width: 100%;
+  width: 100%;
 }
 
 .navbar {
@@ -69,32 +67,32 @@
 }
 
 #searchToolsHeader {
-	margin: 5px auto;
-	width: 50%;
+  margin: 5px auto;
+  width: 50%;
 }
 
 #disclaimer {
-	margin-right: 20px;
-	margin-left: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
-	-webkit-appearance: none;
-	margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 input[type="number"] {
-	-moz-appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 #searchToolsHeaderContainer {
-	text-align: center;
+  text-align: center;
 }
 
 #searchToolsHeader {
-	margin: auto;
+  margin: auto;
 }
 
 #agencyTypeSelect {
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }

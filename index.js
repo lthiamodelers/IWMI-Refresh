@@ -487,7 +487,7 @@ function reset() {
 
 // Generate the content for a marker's infowindow.
 function generateInfoWindowContent(loc) {
-    var content = '<h5><a href="' + loc.contactURL + '" target="_blank">' + loc.name +
+    var content = '<div class="info-content"><h5><a href="' + loc.contactURL + '" target="_blank">' + loc.name +
         '</a></h5><p><b>Agency:</b> ' + loc.organization +
         '<br><b>Location:</b> ' + loc.description +
         '<br><b>Site Number:</b> ' + loc.siteNo +
@@ -501,6 +501,7 @@ function generateInfoWindowContent(loc) {
     if (loc.email !== "" || loc.email !== null) {
         content += "<br><a href='mailto:" + loc.email + "?subject=Water%20Data'>Email</a>"
     }
+    content += '</div>';
     return content;
 }
 
