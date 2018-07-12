@@ -61,9 +61,13 @@
             <hr/>
             <div><b>This site works best on a computer in Chrome, Firefox, Safari, and Edge.</b></div>
             <button id="clusterMarkers" class="btn btn-primary" type="button">Cluster Markers (faster)</button>
-            <br/>
-            <button id="download" class="btn btn-primary" type="button">Download Current Selection (.csv)</button>
-            <br/>
+            <hr/>
+            <strong>Download Current Selection</strong>
+            <div style="display: inline-block;">
+              <button id="downloadCsv" class="btn btn-primary" type="button">CSV</button>
+              <button id="downloadShp" class="btn btn-primary" type="button">Shapefile</button>
+            </div>
+            <hr/>
             <div>Want to contribute data? Please contact the 
               <a href="mailto:manager@lthia.org?subject=IWMI Data Contribution">manager</a>!
             </div>
@@ -85,6 +89,8 @@
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="lib/alasql.min.js"></script>
     <script src="lib/tocsv.js"></script>
+    <script src="lib/togeojson.js"></script>
+    <script src="lib/shpwrite.js"></script>
     <script src="lib/FileSaver.min.js"></script>
     <script src="config.js"></script>
     <script src="index.js"></script>

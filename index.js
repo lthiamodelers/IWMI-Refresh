@@ -1,5 +1,6 @@
 var map;
 var locations = [];
+var popupLocation = {};
 var markers = [];
 var infowindows = [];
 var locationListGlobal = [];
@@ -263,10 +264,33 @@ function search() {
 }
 
 // Use FileSaver script to save the currently selected locations using a blob.
-function downloadList() {
+function downloadCsv() {
     var csv = toCsv(locationListGlobal);
     var blob = new Blob([csv], {type: "text/plain;charset=utf-8"});
     saveAs(blob, "locations.csv");
+}
+
+function createGeoJSON(locations) {
+    var options = {
+        folder: "iwmi-data",
+        types: {
+            point: locations.length > 1 ? "iwmi-sites" : locations[0].name
+        }
+    };
+    var geojson = toGeoJSON(locations);
+    shpwrite.zip(geojson, options).then(function(content) {
+        saveAs(content, 'iwmi-data.zip');
+    });
+}
+
+// Use mapbox/shp-write to save individual point as a shapefile
+function downloadPopupShp() {
+    createGeoJSON([popupLocation]);
+}
+
+// Use mapbox/shp-write to save the currently selected locations as a shapefile
+function downloadShp() {
+    createGeoJSON(locationListGlobal);
 }
 
 // Create marker from a location.
@@ -310,6 +334,8 @@ function createMarker(loc) {
     marker.addListener('click', function () {
         closeInfowindows();
         infowindow.open(map, marker);
+        popupLocation = loc;
+        document.getElementById("downloadPopupShp").addEventListener("click", downloadPopupShp);
     });
     return marker;
 }
@@ -501,6 +527,7 @@ function generateInfoWindowContent(loc) {
     if (loc.email !== "" || loc.email !== null) {
         content += "<br><a href='mailto:" + loc.email + "?subject=Water%20Data'>Email</a>"
     }
+    content += '<button id="downloadPopupShp" class="btn btn-link btn-sm" type="button">Shapefile</button>';
     content += '</div>';
     return content;
 }
@@ -569,7 +596,8 @@ document.getElementById("parameterSelect").addEventListener("change", search);
 document.getElementById("nutrientSelect").addEventListener("change", search);
 document.getElementById("clusterMarkers").addEventListener("click", clusterMarkers);
 document.getElementById("hucSearch").addEventListener("keyup", filterHUC);
-document.getElementById("download").addEventListener("click", downloadList);
+document.getElementById("downloadCsv").addEventListener("click", downloadCsv);
+document.getElementById("downloadShp").addEventListener("click", downloadShp);
 
 //Load in the csv, and call parse with it.
 $(document).ready(function () {
