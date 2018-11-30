@@ -6,8 +6,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width = device-width, initial-scale = 1">
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"/>
-    <link rel="stylesheet" type="text/css" href="index.css"/>
-    <link rel="stylesheet" type="text/css" href="common.css">
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="stylesheet" type="text/css" href="loader.css" />
+    <link rel="stylesheet" type="text/css" href="common.css" />
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <title>IWMI</title>
   </head>
@@ -22,9 +23,10 @@
       </nav>
       <div class="container-fluid">
         <div class="row">
-          <div class="col-md-9">
+          <div class="col-md-9" align="center">
             <div id="map">
-              <b>Swiper has stolen the map! Dora is currently looking for it, but it may take her several seconds to find it.</b>
+              <div class="loader"></div>
+              <span>Loading map...</span>
             </div>
             <img id="markerColors" src="res/markerColors.png">
           </div>
@@ -68,11 +70,11 @@
               <button id="downloadShp" class="btn btn-primary" type="button">Shapefile</button>
             </div>
             <hr/>
-            <div>Want to contribute data? Please contact the 
+            <div>Want to contribute data? Please contact the
               <a href="mailto:manager@lthia.org?subject=IWMI Data Contribution">manager</a>!
             </div>
             <div>
-              <a href="https://github.com/lthiamodelers/IWMI-Refresh">IWMI</a> is open source. Contact the 
+              <a href="https://github.com/lthiamodelers/IWMI-Refresh">IWMI</a> is open source. Contact the
               <a href="mailto:bscholer@purdue.edu?subject=IWMI">developer</a>.
             </div>
             <div><a href="about.html" target="_blank">Disclaimer/About</a></div>
@@ -85,7 +87,7 @@
     <script src="lib/markerclusterer.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBss3canGF7OHkgWQ3pN6gmc5-KvW5l0wc"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBPwG0yceGrOX09b4DVqkY8esEgABhVQpg"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="lib/alasql.min.js"></script>
     <script src="lib/tocsv.js"></script>
