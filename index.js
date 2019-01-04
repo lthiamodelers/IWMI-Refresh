@@ -420,7 +420,13 @@ function parse(text) {
     }
 
     searchDistinct(locations);
-    myMap();
+
+    // Create markers for each location
+    for (var i = 0; i < locations.length; i++) {
+      markers.push([parseInt(locations[i].FID), createMarker(locations[i])]);
+    }
+    // Remove loading message
+    document.getElementById("loader-container").style.display = "none";
 }
 
 //Create the maps and stuff
@@ -433,10 +439,6 @@ function myMap() {
     };
 
     map = new google.maps.Map(mapCanvas, mapOptions);
-
-    for (var i = 0; i < locations.length; i++) {
-        markers.push([parseInt(locations[i].FID), createMarker(locations[i])]);
-    }
 }
 
 //click function for search
@@ -601,9 +603,11 @@ document.getElementById("downloadShp").addEventListener("click", downloadShp);
 
 //Load in the csv, and call parse with it.
 $(document).ready(function () {
+    // Load map immediately then fetch data
+    myMap();
     $.ajax({
         type: "POST",
-        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%20" + config.GOOGLE_FUSION_TABLE_ID + "&key=AIzaSyBss3canGF7OHkgWQ3pN6gmc5-KvW5l0wc",
+        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%20" + config.GOOGLE_FUSION_TABLE_ID + "&key=AIzaSyBPwG0yceGrOX09b4DVqkY8esEgABhVQpg",
         dataType: "text",
         success: function (data) {
             // document.getElementById('disclaimer').innerHTML = config.DISCLAIMER;
