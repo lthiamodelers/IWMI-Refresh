@@ -334,8 +334,10 @@ function createMarker(loc) {
     marker.addListener('click', function () {
         closeInfowindows();
         infowindow.open(map, marker);
-        popupLocation = loc;
-        document.getElementById("downloadPopupShp").addEventListener("click", downloadPopupShp);
+        google.maps.event.addListener(infowindow, 'domready', function () {
+            popupLocation = loc;
+            document.getElementById("downloadPopupShp").addEventListener("click", downloadPopupShp);
+        });
     });
     return marker;
 }
