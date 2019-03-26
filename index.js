@@ -43,9 +43,8 @@ Parameter Type = parameterType
  */
 
 // This object is used to store location points from the Fusion Table
-function BasicLocation(FID, GID, type, organization, name, siteNo, description, parameterType, parameter, frequency, publiclyAvailible, startDate, endDate, contactURL, id, quality, email, huc8, huc10, huc12, lat, lng) {
+function BasicLocation(FID, type, organization, name, siteNo, description, parameterType, parameter, frequency, publiclyAvailible, startDate, endDate, contactURL, quality, email, huc8, huc10, huc12, lat, lng) {
     this.FID = FID;
-    this.GID = GID;
     this.type = type;
     this.organization = organization;
     this.name = name;
@@ -58,7 +57,6 @@ function BasicLocation(FID, GID, type, organization, name, siteNo, description, 
     this.startDate = startDate;
     this.endDate = endDate;
     this.contactURL = contactURL;
-    this.id = id;
     this.quality = quality;
     this.email = email;
     this.huc8 = huc8;
@@ -407,19 +405,38 @@ function markerSearch(fid) {
 }
 
 // Parse all the locations. Called at the very beginning by jQuery.
-function parse(text) {
+function parse(results) {
+    console.log(results);
     markerIcons();
-    var jsonVersion = JSON.parse(text);
-    var data = jsonVersion.rows;
-    for (var i = 0; i < data.length; i++) {
-        var a = data[i];
 
-        var loc = new BasicLocation(i + 1, a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11],
-            a[12], a[13], a[14], a[15], a[16], a[17], a[18], a[19], a[20], a[21]);
+    const data = results.features;
+    data.forEach((feature, featureIndex) => {
+       let loc = new BasicLocation(
+         featureIndex,
+         feature.properties.type,
+         feature.properties.organization,
+         feature.properties.name,
+         feature.properties.site_number,
+         feature.properties.description,
+         feature.properties.parameter_type,
+         feature.properties.parameter,
+         feature.properties.frequency,
+         feature.properties.publicly_available,
+         feature.properties.start_date,
+         feature.properties.end_date,
+         feature.properties.contact_url,
+         feature.properties.quality,
+         feature.properties.email,
+         feature.properties.huc_8,
+         feature.properties.huc_10,
+         feature.properties.huc_12,
+         feature.properties.latitude,
+         feature.properties.longitude
+       );
 
         locations.push(loc);
         locationListGlobal.push(loc);
-    }
+    });
 
     searchDistinct(locations);
 
@@ -608,12 +625,11 @@ $(document).ready(function () {
     // Load map immediately then fetch data
     myMap();
     $.ajax({
-        type: "POST",
-        url: "https://www.googleapis.com/fusiontables/v2/query?sql=SELECT%20*%20FROM%20" + config.GOOGLE_FUSION_TABLE_ID + "&key=AIzaSyBPwG0yceGrOX09b4DVqkY8esEgABhVQpg",
-        dataType: "text",
+        crossOrigin: true,
+        type: "GET",
+        url: "https://water.saraswat.rcac.purdue.edu/iwmi/?page_size=6000",
         success: function (data) {
-            // document.getElementById('disclaimer').innerHTML = config.DISCLAIMER;
-            parse(data);
+            parse(data.results);
         }
     });
 });
