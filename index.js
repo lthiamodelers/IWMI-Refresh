@@ -406,32 +406,31 @@ function markerSearch(fid) {
 
 // Parse all the locations. Called at the very beginning by jQuery.
 function parse(results) {
-    console.log(results);
     markerIcons();
 
     const data = results.features;
     data.forEach((feature, featureIndex) => {
-       let loc = new BasicLocation(
-         featureIndex,
-         feature.properties.type,
-         feature.properties.organization,
-         feature.properties.name,
-         feature.properties.site_number,
-         feature.properties.description,
-         feature.properties.parameter_type,
-         feature.properties.parameter,
-         feature.properties.frequency,
-         feature.properties.publicly_available,
-         feature.properties.start_date,
-         feature.properties.end_date,
-         feature.properties.contact_url,
-         feature.properties.quality,
-         feature.properties.email,
-         feature.properties.huc_8,
-         feature.properties.huc_10,
-         feature.properties.huc_12,
-         feature.properties.latitude,
-         feature.properties.longitude
+        let loc = new BasicLocation(
+            featureIndex,
+            feature.properties.type,
+            feature.properties.organization,
+            feature.properties.name,
+            feature.properties.site_number,
+            feature.properties.description,
+            feature.properties.parameter_type,
+            feature.properties.parameter,
+            feature.properties.frequency,
+            feature.properties.publicly_available,
+            feature.properties.start_date,
+            feature.properties.end_date,
+            feature.properties.contact_url,
+            feature.properties.quality,
+            feature.properties.email,
+            feature.properties.huc_8,
+            feature.properties.huc_10,
+            feature.properties.huc_12,
+            feature.properties.latitude,
+            feature.properties.longitude
        );
 
         locations.push(loc);
