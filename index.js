@@ -553,16 +553,16 @@ function generateInfoWindowContent(loc) {
 }
 
 function markerIcons() {
-    icons.push(["Federal and regional agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/0000FF/")]);
-    icons.push(["State agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/10B2FF/")]);
-    icons.push(["Cities and towns (except drinking water)", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/004184/")]);
-    icons.push(["Non-governmental organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/A50000/")]);
-    icons.push(["Counties", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/840084/")]);
-    icons.push(["Private sector", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/104121/")]);
-    icons.push(["Universities", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/CEFF31/")]);
-    icons.push(["Watershed organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF00FF/")]);
-    icons.push(["Drinking water", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/4282FF/")]);
-    icons.push(["Volunteers", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/10D352/")]);
+    icons.push(["Federal and regional agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF0020/")]);
+    icons.push(["State agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FFAB2E/")]);
+    icons.push(["Cities and towns (except drinking water)", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/923F11/")]);
+    icons.push(["Non-governmental organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/001EA2/")]);
+    icons.push(["Counties", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/930082/")]);
+    icons.push(["Private sector", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/164319/")]);
+    icons.push(["Universities", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/00FFCD/")]);
+    icons.push(["Watershed organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF00FD/")]);
+    icons.push(["Drinking water", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF794B/")]);
+    icons.push(["Volunteers", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/00D228/")]);
     icons.forEach(function (icon) {
         icon[1].scaledSize = new google.maps.Size(42 * markerScale, 68 * markerScale);
     });
