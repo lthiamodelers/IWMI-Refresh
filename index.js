@@ -553,16 +553,16 @@ function generateInfoWindowContent(loc) {
 }
 
 function markerIcons() {
-    icons.push(["Federal and regional agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF0020/")]);
-    icons.push(["State agencies", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FFAB2E/")]);
-    icons.push(["Cities and towns (except drinking water)", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/923F11/")]);
-    icons.push(["Non-governmental organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/001EA2/")]);
-    icons.push(["Counties", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/930082/")]);
-    icons.push(["Private sector", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/164319/")]);
-    icons.push(["Universities", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/00FFCD/")]);
-    icons.push(["Watershed organizations", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF00FD/")]);
-    icons.push(["Drinking water", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/FF794B/")]);
-    icons.push(["Volunteers", new google.maps.MarkerImage("http://www.googlemapsmarkers.com/v1/00D228/")]);
+    icons.push(["Federal and regional agencies", new google.maps.MarkerImage("./res/FF0020.png")]);
+    icons.push(["State agencies", new google.maps.MarkerImage("./res/FFAB2E.png")]);
+    icons.push(["Cities and towns (except drinking water)", new google.maps.MarkerImage("./res/923F11.png")]);
+    icons.push(["Non-governmental organizations", new google.maps.MarkerImage("./res/001EA2.png")]);
+    icons.push(["Counties", new google.maps.MarkerImage("./res/930082.png")]);
+    icons.push(["Private sector", new google.maps.MarkerImage("./res/164319.png")]);
+    icons.push(["Universities", new google.maps.MarkerImage("./res/00FFCD.png")]);
+    icons.push(["Watershed organizations", new google.maps.MarkerImage("./res/FF00FD.png")]);
+    icons.push(["Drinking water", new google.maps.MarkerImage("./res/FF794B.png")]);
+    icons.push(["Volunteers", new google.maps.MarkerImage("./res/00D228.png")]);
     icons.forEach(function (icon) {
         icon[1].scaledSize = new google.maps.Size(42 * markerScale, 68 * markerScale);
     });
