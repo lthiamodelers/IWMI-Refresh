@@ -453,7 +453,8 @@ function myMap() {
     var mapCanvas = document.getElementById("map");
     var mapOptions = {
         center: center,
-        zoom: 7
+        zoom: 7,
+        gestureHandling: "greedy",
     };
 
     map = new google.maps.Map(mapCanvas, mapOptions);
@@ -474,7 +475,8 @@ function searchCity() {
 
         var mapOptions = {
             center: center,
-            zoom: 7
+            zoom: 7,
+            gestureHandling: "greedy",
         };
         map.setOptions(mapOptions);
     } else {
