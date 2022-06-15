@@ -412,9 +412,9 @@ function parse(results) {
     data.forEach((feature, featureIndex) => {
         let loc = new BasicLocation(
             featureIndex,
-            feature.properties.type,
+            feature.properties.agency_type,
             feature.properties.organization,
-            feature.properties.name,
+            feature.properties.site_name,
             feature.properties.site_number,
             feature.properties.description,
             feature.properties.parameter_type,
